@@ -1,0 +1,8 @@
+Manifest.json is important for developing extension in any browser
+chrome.storage api (storage ->Entry in manifest) ->Helps access the storage system
+chrome.tabs api -(tabs ->Entry in manifest) ->Helps access the tab system
+host_permissions -> To send CORS requests for certain domains mentioned
+service_workers dont have access to contents of main webpage but it has capabilities to speak to the extension
+ContentScripts: Files that run on the context of webpages that we are on
+ 
+
