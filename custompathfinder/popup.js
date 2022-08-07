@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     // close the extension popup
-    // window.close()
+    window.close()
 
   }, false)
 }, false)

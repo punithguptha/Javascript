@@ -1,5 +1,6 @@
 (function (window, document, namespace) {
   var status = 'idle'
+  var mouseoverElement="";
   var options = {
     inspector: null,
     htmlClass: true,
@@ -66,6 +67,9 @@
       var excludedElements = Array.prototype.slice.call(document.querySelectorAll(excludedSelector))
       if (excludedElements.indexOf(target) >= 0) return
     }
+  
+    console.log("EventType: "+event.type);
+    console.log(event.target);
 
     if (event.type === 'mouseover') {
       // get target element information
@@ -81,9 +85,24 @@
       options.inspector.style.left = left + 'px'
       options.inspector.style.width = width + 'px'
       options.inspector.style.height = height + 'px'
+      mouseoverElement=target;
     }
 
+    //Because the hover result and keydown element results in different elements
+    if(event.type==='keydown'){
+      target=mouseoverElement;
+    }
     eventController(event.type, target, event)
+  }
+
+  var keyDownEventHandler=function (event) {
+      if(!event.repeat){
+        //The or condition is to handle the caps lock and shift + s event 
+          if(event.shiftKey && (event.key==="S"||event.key==='s')){
+              console.log("Shift+S(Capital) is pressed!!!");
+              eventEmitter(event);
+          }
+      }
   }
 
   var engine = function (type) {
@@ -97,16 +116,16 @@
         }
       }
 
-      document.addEventListener('click', eventEmitter)
+      // document.addEventListener('click', eventEmitter)
       document.addEventListener('mouseover', eventEmitter)
-
+      document.addEventListener('keydown',keyDownEventHandler);
       if (options.htmlClass === true) htmlEl.className += ' ' + namespace
 
       status = 'running'
     } else if (type === 'stop') {
-      document.removeEventListener('click', eventEmitter)
+      // document.removeEventListener('click', eventEmitter)
       document.removeEventListener('mouseover', eventEmitter)
-
+      document.removeEventListener('keydown',keyDownEventHandler);
       if (options.htmlClass === true) htmlEl.className = htmlEl.className.replace(' ' + namespace, '')
       if (options.blockRedirection === true) window.onbeforeunload = undefined
 

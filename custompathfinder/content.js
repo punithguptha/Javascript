@@ -5,10 +5,31 @@ window.theRoom.configure({
   createInspector: true,
   excludes: [],
   click: function (element, event) {
+    debugger;
     event.preventDefault()
-
+    event.stopPropagation();
     // get the unique css selector of the clicked element
     // and then copy it to clipboard
+    navigator
+      .clipboard
+      .writeText(
+        getSelector(element)
+      )
+      .then(
+        function () {
+          alert('The unique CSS selector successfully copied to clipboard')
+        },
+        function (err) {
+          alert('The unique CSS selector could not be copied to clipboard')
+        }
+      )
+
+    // so far so good
+    // stop inspection
+     window.theRoom.stop(true)
+  },
+  keydown: function (element, event) {
+    console.log("Inside keydown function in content.js");
     navigator
       .clipboard
       .writeText(
