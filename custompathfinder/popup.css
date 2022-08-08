@@ -1,0 +1,182 @@
+html {
+  background-color: #f8f8f8;
+}
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  min-width: 320px;
+  color: #333333;
+  line-height: 19px;
+  font-size: 13px;
+  margin: 0;
+  display: flex;
+  flex-flow: column;
+}
+
+/* ul {
+  padding-left: 25px;
+} */
+
+.CreateTour {
+  border: 0;
+  background-color: transparent;
+  border: 1px solid #000000;
+  padding: 8px 15px;
+  color: #000000;
+  border-radius: 5px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: all 200ms;
+  text-decoration: underline;
+}
+
+.CreateTour:hover {
+  background-color: #000000;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.cta {
+  text-align: center;
+}
+
+.p10 {
+  padding: 10px;
+}
+
+/* Accordion CSS start */
+/* * {
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+  } */
+
+  .TourForm{
+    display: none;
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .TourForm input{
+    margin-bottom: 10px;
+    height: 25px;
+  }
+
+  .TourForm textarea{
+    margin-bottom: 10px;
+    height: 50px;
+  }
+
+  .buttonGroupForm{
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .buttonGroupForm button{
+    margin-left:10px;
+  }
+
+  .TourElement{
+    display: inline-flex;
+    width: 100%;
+    background-color: white;
+  }
+
+  .TourElement a{
+    width: 55%;
+    font-size: medium;
+  }
+
+  .buttonGroupOuter{
+    align-self: center;
+    right: 0;
+    position: absolute;
+    padding-right: 10px;
+  }
+
+  .StepElement{
+    display: inline-flex;
+    width:100%;
+    justify-content: center;
+  }
+
+  .StepText{
+    width: 60%;
+    padding: 5px;
+    align-self: center;
+  }
+
+  .buttonGroupInner{
+    padding: 5px;
+  }
+
+  .buttonGroupInner button{
+    font-size: smaller;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  a.toggle:hover{
+        background-color: black;
+        color: white;
+  }
+
+  .StepElement:hover{
+    background-color: lightseagreen;
+    color: white;
+  }
+
+  i {
+    float: right;
+    padding-left: 3px;
+  }
+  .iconleft {
+    float: left;
+    padding-right: 3px;
+    padding-left: 0px;
+  }
+  p {
+    font-size: 1.1em;
+    margin: 1em 0;
+  }
+  .description {
+    margin: 1em auto 2.25em;
+  }
+  /* body {
+    width: 40%;
+    min-width: 300px;
+    max-width: 400px;
+    margin: 1.5em auto;
+    color: #333;
+  } */
+  h1 {
+    font-family: 'Pacifico', cursive;
+    font-weight: 400;
+    font-size: 2.5em;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  ul .inner {
+    padding: 0 10px 0 10px;
+    overflow: hidden;
+    display: none;
+  }
+  ul li {
+    margin: .5em 0;
+  }
+  ul li a.toggle {
+    height: 100%;
+    width: 100%;
+    padding: .75em;
+    border-radius: 0.15em;
+    transition: background .3s ease;
+  }
+  /* ul li a.toggle:hover {
+    background: rgba(193, 193, 193, 0.9);
+  } */
+/* Accordion CSS end */
