@@ -81,9 +81,11 @@ var updateAccordionList=function(currentStorageData=[]){
   var formInputElement=document.querySelector('.TourForm');
   var createTourButton=document.querySelector('.CreateTour');
   var createTourParent=createTourButton.parentElement;
-  accordionListElement.style.display='block';
-  createTourParent.style.display='block';
-  formInputElement.style.display='none';
+  if(formInputElement.style.display==='flex'){
+    accordionListElement.style.display='block';
+    createTourParent.style.display='block';
+    formInputElement.style.display='none';
+  }
 };
 
 var initiateAllEventListeners=async function(){
@@ -196,11 +198,28 @@ var generateAndAppendTemplate = function () {
   document.body.appendChild(stepElementTemplate);
 };
 
+var fetchAndShow= async function(){
+  const activeTab= await getCurrentTab();
+  var urlObject=new URL(activeTab.url);
+  //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+  var tourHostName=urlObject.hostname;
+  chrome.tabs.sendMessage(activeTab.id,{
+    type:"GET",
+    payload:{
+      tourObj:{
+        tourHostName:tourHostName
+      }
+    }
+  },updateAccordionList);
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   // get the cta button element
   initiateAllEventListeners();
-  
   generateAndAppendTemplate();
+
+  //Fetch and show the data during startload
+  fetchAndShow();
   // handle cta button click event
   // to be able to start inspection
   // selectElementButton.addEventListener('click', function () {

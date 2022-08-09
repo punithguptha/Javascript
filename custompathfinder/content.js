@@ -116,25 +116,27 @@
   //Creation of Modal Template Element and appending it to body
   generateAndAppendTemplate();
 
-  var sendResponseDoop= async function(object,sender,sendResponse){
+  var handleEvents= async function(object,sender,sendResponse){
     var { type, payload } = object;
     var tourHostName = payload.tourObj.tourHostName;
     var allDataForHostName = await fetchData(tourHostName);
-    var newData = [...allDataForHostName, payload];
-    chrome.storage.sync.set({
-      [tourHostName]: JSON.stringify(newData)
-    });
-    sendResponse(newData);
+    var responseData=undefined;
+    if(type==="NEW" && payload?.tourObj?.tourHostName){
+      responseData = [...allDataForHostName, payload];
+      chrome.storage.sync.set({
+        [tourHostName]: JSON.stringify(responseData)
+      });
+    }else if(type==="GET" && payload?.tourObj?.tourHostName){
+      responseData=allDataForHostName;
+    }
+    sendResponse(responseData);
   };
 
   chrome.runtime.onMessage.addListener(function (object, sender, sendResponse) {
     // the expected message has arrived
     // ready to start inspection
-    var { type, payload } = object;
-    if (type === "NEW" && payload?.tourObj?.tourHostName) {
-      sendResponseDoop(object,sender,sendResponse);
+      handleEvents(object,sender,sendResponse);
       return true;
-    }
     // inspection has started
     window.theRoom.start()
   });
