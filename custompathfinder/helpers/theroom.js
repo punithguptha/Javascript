@@ -68,8 +68,8 @@
       if (excludedElements.indexOf(target) >= 0) return
     }
   
-    console.log("EventType: "+event.type);
-    console.log(event.target);
+    // console.log("EventType: "+event.type);
+    // console.log(event.target);
 
     if (event.type === 'mouseover') {
       // get target element information
@@ -99,8 +99,12 @@
       if(!event.repeat){
         //The or condition is to handle the caps lock and shift + s event 
           if(event.shiftKey && (event.key==="S"||event.key==='s')){
-              console.log("Shift+S(Capital) is pressed!!!");
+              // console.log("Shift+S(Capital/Small) is pressed!!!");
               eventEmitter(event);
+          }
+          if(event.shiftKey && (event.key==="E"||event.key==='e')){
+            // console.log("Shift+E(Capital/Small) is pressed!!!");
+            stop(true);
           }
       }
   }

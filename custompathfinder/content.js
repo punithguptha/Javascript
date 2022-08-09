@@ -28,10 +28,11 @@
       window.theRoom.stop(true)
     },
     keydown: function (element, event) {
-      console.log("Inside keydown function in content.js");
-      console.log("Element Selected" + getSelector(element));
+      // console.log("Inside keydown function in content.js");
+      // console.log("Element Selected" + getSelector(element));
       var swalTemplateElement = document.getElementById('SwalTemplate');
       var swalTemplateContentCloned = swalTemplateElement.content.firstElementChild.cloneNode(true);
+      var defaultSelector = getSelector(element);
       Swal.fire({
         html: swalTemplateContentCloned,
         showCloseButton: true,
@@ -53,8 +54,30 @@
         },
         preConfirm: function () {
           //To get the element's input values and storing them before swal closes by confirm button
+          var nameInputValue=document.querySelector('.nameInput.swal2-input')?.value;
+          var selectorElementInputValue =document.querySelector('.selectorElementInput.swal2-input')?.value;
+          var contentInputValue =document.querySelector('.contentInput.swal2-textarea')?.value;
+          var eventTypeInputValue=document.querySelector('.eventTypeInput.swal2-input')?.value;
+          return [nameInputValue,selectorElementInputValue,contentInputValue,eventTypeInputValue]
         }
       }).then(function (result) {
+        //stepNumber to be added during runtime by comparing the storage's length
+        var stepName,stepElementPath,stepDescription,stepEvent,stepUrl;
+        [stepName,stepElementPath,stepDescription,stepEvent]=result.value;
+        stepUrl=window.location.href;
+        var urlObject=new URL(stepUrl);
+        var hostName=urlObject.hostname;
+        stepName=(stepName)?stepName:'Default StepName';
+        stepElementPath=(stepElementPath)?stepElementPath:defaultSelector;
+        stepDescription=(stepDescription)?stepDescription:'Default Step Description';
+        var stepPayload={
+          stepName:stepName,
+          stepEvent:stepEvent,
+          stepElementPath:stepElementPath,
+          stepUrl:stepUrl,
+          stepDescription:stepDescription
+        }
+        addStepData(hostName,stepPayload);
         window.theRoom.start();
       });
 
@@ -62,7 +85,10 @@
       // stop inspection
       // window.theRoom.stop(true);
     }
-  })
+  });
+
+  //Global vars
+  var activeTourId=undefined;
 
   var generateAndAppendTemplate = function () {
     //SwalTemplate Addition
@@ -74,7 +100,8 @@
     var nameElement = document.createElement('input');
     nameElement.setAttribute('class', 'nameInput swal2-input');
     nameElement.setAttribute('placeholder', 'Enter a name');
-
+    nameElement.setAttribute('maxlength','50');
+    
     var selectorInputElement = document.createElement('input');
     selectorInputElement.setAttribute('class', 'selectorElementInput swal2-input');
     selectorInputElement.setAttribute('placeholder', 'Optional element selector');
@@ -89,8 +116,8 @@
     eventTypeInputElement.setAttribute('placeholder', 'Event Type During tour');
 
     MainDiv.appendChild(nameElement);
-    MainDiv.appendChild(selectorInputElement);
     MainDiv.appendChild(contentInputElement);
+    MainDiv.appendChild(selectorInputElement);
     MainDiv.appendChild(eventTypeInputElement);
 
     swalTemplateElement.content.appendChild(MainDiv);
@@ -104,6 +131,27 @@
         resolve(obj[currentHostName] ? JSON.parse(obj[currentHostName]) : []);
       })
     });
+  };
+
+  var addStepData=  async function(currentHostName,stepPayload){
+    var allDataForHostName = await fetchData(currentHostName);
+    stepPayload.stepNumber='';
+    //Filter our for items with activeTourId
+    for(var i=0;i<allDataForHostName.length;i++){
+      var currentTourObject=allDataForHostName[i];
+      if(currentTourObject.tourId===activeTourId){
+        var currentTourObjectSteps=currentTourObject.tourObj.steps;
+        stepPayload.stepNumber=currentTourObjectSteps.length+1;
+        currentTourObject.tourObj.steps=[...currentTourObjectSteps,stepPayload];
+        allDataForHostName[i]=currentTourObject;
+        chrome.storage.sync.set({
+          [currentHostName]: JSON.stringify(allDataForHostName)
+        });
+        break;
+      }
+    }
+    console.log("Updated Data from addStepData method below for current Tour:");
+    console.log(currentTourObject);
   };
 
   // inspector element styles
@@ -122,6 +170,7 @@
     var allDataForHostName = await fetchData(tourHostName);
     var responseData=undefined;
     if(type==="NEW" && payload?.tourObj?.tourHostName){
+      activeTourId=payload.tourId;
       responseData = [...allDataForHostName, payload];
       chrome.storage.sync.set({
         [tourHostName]: JSON.stringify(responseData)
@@ -135,9 +184,14 @@
   chrome.runtime.onMessage.addListener(function (object, sender, sendResponse) {
     // the expected message has arrived
     // ready to start inspection
+    var {type,payload}=object;
+    if(type==='START'){
+      activeTourId=payload.tourId;
+    // inspection has started
+      window.theRoom.start();
+    }else{
       handleEvents(object,sender,sendResponse);
       return true;
-    // inspection has started
-    window.theRoom.start()
+    }
   });
 })();

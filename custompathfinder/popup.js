@@ -18,16 +18,21 @@ var toggleElementFunction = function () {
   $('.toggle').click(function (e) {
     e.preventDefault();
 
-    var outerTourElement= e.target.parentElement.parentElement;
-    var innerElement=outerTourElement.querySelector('.inner');
-    if(innerElement.style.display==='none' ||innerElement.style.display===""){
-      e.target.style.backgroundColor='black';
-      e.target.style.color='white';
-      innerElement.style.display='block';
-    }else{
-      e.target.style.backgroundColor='white';
-      e.target.style.color='black';
-      innerElement.style.display='none';
+    var outerTourElement = e.target.parentElement.parentElement;
+    var innerElementList = outerTourElement.querySelectorAll('.inner');
+    if (innerElementList.length) {
+      for (var i = 0; i < innerElementList.length; i++) {
+        var currentInnerElement = innerElementList[i];
+        if (currentInnerElement.style.display === 'none' || currentInnerElement.style.display === "") {
+          e.target.style.backgroundColor = 'black';
+          e.target.style.color = 'white';
+          currentInnerElement.style.display = 'block';
+        } else {
+          e.target.style.backgroundColor = 'white';
+          e.target.style.color = 'black';
+          currentInnerElement.style.display = 'none';
+        }
+      }
     }
   });
 };
@@ -48,6 +53,7 @@ var updateAccordionList=function(currentStorageData=[]){
   for(var i=0;i<currentStorageData.length;i++){
       var defaultTourName='Tour #'+i;
       var defaultTourDescription='Tour #'+i+" Description";
+      var tourId=currentStorageData[i].tourId;
       var currTourName=currentStorageData[i].tourObj?.tourName;
       currTourName=(currTourName)?currTourName:defaultTourName;
       var currTourDescription=currentStorageData[i].tourObj?.tourDescription;
@@ -56,6 +62,7 @@ var updateAccordionList=function(currentStorageData=[]){
       var tourElementCloned = tourElementTemplate.content.firstElementChild.cloneNode(true);
       tourElementCloned.querySelector('a').innerHTML=currTourName;
       tourElementCloned.querySelector('a').setAttribute('title',currTourDescription);
+      tourElementCloned.querySelector('.buttonGroupOuter').setAttribute('tourId',tourId);
       liElement.appendChild(tourElementCloned);
 
       var steps=currentStorageData[i].tourObj?.steps;
@@ -86,6 +93,7 @@ var updateAccordionList=function(currentStorageData=[]){
     createTourParent.style.display='block';
     formInputElement.style.display='none';
   }
+  initiateAllEventListeners();
 };
 
 var initiateAllEventListeners=async function(){
@@ -99,6 +107,23 @@ var initiateAllEventListeners=async function(){
   var saveButton=document.querySelector('.buttonGroupForm .saveButton');
   var tourNameElement=document.querySelector('.TourForm input');
   var tourDescriptionElement=document.querySelector('.TourForm textarea');
+
+  //Add Button eventListener Binding  start
+  $('.buttonGroupOuter .addButton').click(async function(e){
+    var parentElement=e.target.parentElement;
+    var activeTourId=parentElement.getAttribute('tourId');
+    const activeTab= await getCurrentTab();
+    payload={
+      tourId:activeTourId
+    }
+    chrome.tabs.sendMessage(activeTab.id,{
+      type:"START",
+      payload: payload
+    },updateAccordionList);
+    window.close();
+  });
+  //Add Button eventListener Binding  end
+
   createTourElementButton.addEventListener('click',function(e){
     accordionListElement.style.display='none';
     createTourParent.style.display='none';
@@ -141,6 +166,8 @@ var initiateAllEventListeners=async function(){
       payload: payload
     },updateAccordionList);
   });
+
+  
 }
 
 var generateAndAppendTemplate = function () {
@@ -160,12 +187,16 @@ var generateAndAppendTemplate = function () {
   var saveButtonElement0 = document.createElement('button');
   var deleteButtonElement0 = document.createElement('button');
   editButtonElement0.innerHTML = 'E';
+  editButtonElement0.setAttribute('class','editButton');
   buttonGroup.appendChild(editButtonElement0);
   addButtonElement0.innerHTML = 'A';
+  addButtonElement0.setAttribute('class','addButton');
   buttonGroup.appendChild(addButtonElement0);
   saveButtonElement0.innerHTML = 'S';
+  saveButtonElement0.setAttribute('class','downloadButton');
   buttonGroup.appendChild(saveButtonElement0);
   deleteButtonElement0.innerHTML = 'D';
+  deleteButtonElement0.setAttribute('class','deleteButton');
   buttonGroup.appendChild(deleteButtonElement0);
   tourElementDiv.appendChild(anchorElement);
   tourElementDiv.appendChild(buttonGroup);
@@ -215,11 +246,11 @@ var fetchAndShow= async function(){
 
 document.addEventListener('DOMContentLoaded', function () {
   // get the cta button element
-  initiateAllEventListeners();
   generateAndAppendTemplate();
 
   //Fetch and show the data during startload
   fetchAndShow();
+
   // handle cta button click event
   // to be able to start inspection
   // selectElementButton.addEventListener('click', function () {
