@@ -73,12 +73,15 @@ var updateAccordionList=function(currentStorageData=[]){
         currStepName=(currStepName)?currStepName:defaultStepName;
         var currStepDescription=steps[j]?.stepDescription;
         currStepDescription=(currStepDescription)?currStepDescription:defaultStepDescription;
+        var currStepId=steps[j]?.stepId;
         var ulElement=document.createElement('ul');
         ulElement.setAttribute('class','inner');
         var stepElementTemplate= document.getElementById('StepElementTemplate');
         var stepElementCloned=stepElementTemplate.content.firstElementChild.cloneNode(true);
         stepElementCloned.querySelector('.StepText').innerHTML=currStepName;
         stepElementCloned.querySelector('.StepElement').setAttribute('title',currStepDescription);
+        stepElementCloned.querySelector('.buttonGroupInner').setAttribute('stepId',currStepId);
+        stepElementCloned.querySelector('.buttonGroupInner').setAttribute('parentTourId',tourId);
         ulElement.appendChild(stepElementCloned);
         liElement.appendChild(ulElement);
       }
@@ -123,6 +126,53 @@ var initiateAllEventListeners=async function(){
     window.close();
   });
   //Add Button eventListener Binding  end
+
+  //Delete Button eventListener Binding start(For Tour Element)
+  $('.buttonGroupOuter .deleteButton').click(async function(e){
+    var parentElement=e.target.parentElement;
+    var activeTourId=parentElement.getAttribute('tourId');
+    const activeTab=await getCurrentTab();
+    var urlObject=new URL(activeTab.url);
+    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+    var tourHostName=urlObject.hostname;
+    var payload = {
+      tourId: activeTourId,
+      tourObj: {
+        tourHostName: tourHostName
+      }
+    };
+    chrome.tabs.sendMessage(activeTab.id,{
+      type:"DELETETOUR",
+      payload:payload
+    },updateAccordionList);
+  });
+  //Delete Button eventListener Binding end(For Tour Element)
+
+  //Delete Button eventListener Binding start(For Step Element)
+  $('.buttonGroupInner .deleteButton').click(async function(e){
+    var parentElement=e.target.parentElement;
+    var activeStepId=parentElement.getAttribute('stepId');
+    var activeTourId=parentElement.getAttribute('parentTourId');
+    const activeTab=await getCurrentTab();
+    var urlObject=new URL(activeTab.url);
+    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+    var tourHostName=urlObject.hostname;
+    var payload={
+      tourId:activeTourId,
+      tourObj:{
+        tourHostName:tourHostName,
+        steps:[
+          {stepId:activeStepId}
+        ]
+      }
+    };
+    chrome.tabs.sendMessage(activeTab.id,{
+      type:"DELETESTEP",
+      payload:payload
+    },updateAccordionList);
+  });
+  //Delete Button eventListener Binding end(For Step Element)
+
 
   createTourElementButton.addEventListener('click',function(e){
     accordionListElement.style.display='none';
@@ -221,6 +271,7 @@ var generateAndAppendTemplate = function () {
   saveButtonElement.innerHTML = 'S';
   buttonGroupInnerElement.appendChild(saveButtonElement);
   deleteButtonElement.innerHTML = 'D';
+  deleteButtonElement.setAttribute('class','deleteButton');
   buttonGroupInnerElement.appendChild(deleteButtonElement);
   stepElement.appendChild(stepTextElement);
   stepElement.appendChild(buttonGroupInnerElement);

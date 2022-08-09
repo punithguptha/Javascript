@@ -94,6 +94,10 @@ body {
     padding-right: 10px;
   }
 
+  .buttonGroupOuter button{
+    margin-left:3px;
+  }
+
   .StepElement{
     display: inline-flex;
     width:100%;
@@ -112,6 +116,7 @@ body {
 
   .buttonGroupInner button{
     font-size: smaller;
+    margin-left:3px;
   }
 
   a {

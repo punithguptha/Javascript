@@ -92,6 +92,10 @@
   //Global vars
   var activeTourId=undefined;
 
+  var getRandomId=function(){
+    return crypto.randomUUID();
+  }
+
   var generateAndAppendTemplate = function () {
     //SwalTemplate Addition
     var swalTemplateElement = document.createElement('template');
@@ -138,6 +142,7 @@
   var addStepData=  async function(currentHostName,stepPayload){
     var allDataForHostName = await fetchData(currentHostName);
     stepPayload.stepNumber='';
+    stepPayload.stepId=getRandomId();
     //Filter our for items with activeTourId
     for(var i=0;i<allDataForHostName.length;i++){
       var currentTourObject=allDataForHostName[i];
@@ -168,17 +173,53 @@
 
   var handleEvents= async function(object,sender,sendResponse){
     var { type, payload } = object;
-    var tourHostName = payload.tourObj.tourHostName;
+    var tourHostName = payload?.tourObj?.tourHostName;
     var allDataForHostName = await fetchData(tourHostName);
     var responseData=undefined;
-    if(type==="NEW" && payload?.tourObj?.tourHostName){
+    if(type==="NEW" && tourHostName){
       activeTourId=payload.tourId;
       responseData = [...allDataForHostName, payload];
       chrome.storage.sync.set({
         [tourHostName]: JSON.stringify(responseData)
       });
-    }else if(type==="GET" && payload?.tourObj?.tourHostName){
+    }else if(type==="GET" && tourHostName){
       responseData=allDataForHostName;
+    }else if(type==="DELETETOUR"&& tourHostName){
+      var passedTourId=payload.tourId;
+      //Filter out with the passed tourId and remove it from storage
+      for(var i=0;i<allDataForHostName.length;i++){
+        var currentTourObject=allDataForHostName[i];
+        if(currentTourObject.tourId===passedTourId){
+          allDataForHostName=allDataForHostName.filter(function(item){
+            return item!==currentTourObject;
+          })
+          responseData=allDataForHostName;
+          chrome.storage.sync.set({
+            [tourHostName]: JSON.stringify(allDataForHostName)
+          });
+          break;
+        }
+      }
+    }else if(type==="DELETESTEP"&&tourHostName){
+      activeTourId=payload.tourId;
+      var passedTourId=payload.tourId;
+      var passedStepId=payload?.tourObj?.steps[0]?.stepId;
+      for(var i=0;i<allDataForHostName.length;i++){
+        var currentTourObject=allDataForHostName[i];
+        if(currentTourObject.tourId===passedTourId){
+          var currentTourObjectSteps=currentTourObject.tourObj.steps;
+          var filteredSteps=currentTourObjectSteps.filter(function(item){
+            return item.stepId!==passedStepId;
+          })
+          currentTourObject.tourObj.steps=filteredSteps;
+          allDataForHostName[i]=currentTourObject;
+          responseData=allDataForHostName;
+          chrome.storage.sync.set({
+            [tourHostName]: JSON.stringify(allDataForHostName)
+          });
+          break;
+        }
+      }
     }
     sendResponse(responseData);
   };
