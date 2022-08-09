@@ -61,23 +61,25 @@
           return [nameInputValue,selectorElementInputValue,contentInputValue,eventTypeInputValue]
         }
       }).then(function (result) {
-        //stepNumber to be added during runtime by comparing the storage's length
-        var stepName,stepElementPath,stepDescription,stepEvent,stepUrl;
-        [stepName,stepElementPath,stepDescription,stepEvent]=result.value;
-        stepUrl=window.location.href;
-        var urlObject=new URL(stepUrl);
-        var hostName=urlObject.hostname;
-        stepName=(stepName)?stepName:'Default StepName';
-        stepElementPath=(stepElementPath)?stepElementPath:defaultSelector;
-        stepDescription=(stepDescription)?stepDescription:'Default Step Description';
-        var stepPayload={
-          stepName:stepName,
-          stepEvent:stepEvent,
-          stepElementPath:stepElementPath,
-          stepUrl:stepUrl,
-          stepDescription:stepDescription
+        if (result?.value) {
+          //stepNumber to be added during runtime by comparing the storage's length
+          var stepName, stepElementPath, stepDescription, stepEvent, stepUrl;
+          [stepName, stepElementPath, stepDescription, stepEvent] = result.value;
+          stepUrl = window.location.href;
+          var urlObject = new URL(stepUrl);
+          var hostName = urlObject.hostname;
+          stepName = (stepName) ? stepName : 'Default StepName';
+          stepElementPath = (stepElementPath) ? stepElementPath : defaultSelector;
+          stepDescription = (stepDescription) ? stepDescription : 'Default Step Description';
+          var stepPayload = {
+            stepName: stepName,
+            stepEvent: stepEvent,
+            stepElementPath: stepElementPath,
+            stepUrl: stepUrl,
+            stepDescription: stepDescription
+          }
+          addStepData(hostName, stepPayload);
         }
-        addStepData(hostName,stepPayload);
         window.theRoom.start();
       });
 
@@ -101,7 +103,7 @@
     nameElement.setAttribute('class', 'nameInput swal2-input');
     nameElement.setAttribute('placeholder', 'Enter a name');
     nameElement.setAttribute('maxlength','50');
-    
+
     var selectorInputElement = document.createElement('input');
     selectorInputElement.setAttribute('class', 'selectorElementInput swal2-input');
     selectorInputElement.setAttribute('placeholder', 'Optional element selector');
