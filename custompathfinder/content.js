@@ -160,6 +160,47 @@
     console.log("Updated Data from addStepData method below for current Tour:");
     console.log(currentTourObject);
   };
+  
+  var destroyShepherdInstances=function(){
+    Shepherd.activeTour?.steps?.forEach((item) => {
+      item.destroy();
+    });
+  };
+
+  var convertPayloadToShepherdAndRun=function(currentTourObject){
+    destroyShepherdInstances();
+    var steps=currentTourObject.tourObj.steps;
+    const tour = new Shepherd.Tour({
+      tourName:currentTourObject.tourObj.tourName,
+      useModalOverlay: true,
+      defaultStepOptions: {
+        classes: 'shadow-md bg-purple-dark',
+        scrollTo: { behavior: 'smooth', block: 'center' },
+        cancelIcon:{
+          enabled:true,
+          label:'Close'
+        }
+      }
+    });
+    for(var i=0;i<steps.length;i++){
+      var currentStep=steps[i];
+      tour.addStep({
+        text:currentStep.stepDescription,
+        title:currentStep.stepName,
+        attachTo:{
+          element:currentStep.stepElementPath,
+          on:'auto'
+        },
+        buttons: [
+          {
+            text: 'Next',
+            action: tour.next
+          }
+        ]
+      });
+    }
+    tour.start();
+  }
 
   // inspector element styles
   var linkElement = document.createElement('link');
@@ -184,7 +225,7 @@
       });
     }else if(type==="GET" && tourHostName){
       responseData=allDataForHostName;
-    }else if(type==="DELETETOUR"&& tourHostName){
+    }else if(type==="DELETETOUR" && tourHostName){
       var passedTourId=payload.tourId;
       //Filter out with the passed tourId and remove it from storage
       for(var i=0;i<allDataForHostName.length;i++){
@@ -200,7 +241,7 @@
           break;
         }
       }
-    }else if(type==="DELETESTEP"&&tourHostName){
+    }else if(type==="DELETESTEP" && tourHostName){
       activeTourId=payload.tourId;
       var passedTourId=payload.tourId;
       var passedStepId=payload?.tourObj?.steps[0]?.stepId;
@@ -220,8 +261,20 @@
           break;
         }
       }
+    }else if(type==="PRESENT" && tourHostName){
+      activeTourId=payload.tourId;
+      passedTourId=payload.tourId;
+      for(var i=0;i<allDataForHostName.length;i++){
+        var currentTourObject=allDataForHostName[i];
+        if(currentTourObject.tourId===passedTourId){
+          convertPayloadToShepherdAndRun(currentTourObject);
+          break;
+        }
+      }
     }
-    sendResponse(responseData);
+    if (sendResponse) {
+      sendResponse(responseData);
+    }
   };
 
   chrome.runtime.onMessage.addListener(function (object, sender, sendResponse) {

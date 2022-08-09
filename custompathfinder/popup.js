@@ -127,6 +127,7 @@ var initiateAllEventListeners=async function(){
   });
   //Add Button eventListener Binding  end
 
+  
   //Delete Button eventListener Binding start(For Tour Element)
   $('.buttonGroupOuter .deleteButton').click(async function(e){
     var parentElement=e.target.parentElement;
@@ -173,6 +174,27 @@ var initiateAllEventListeners=async function(){
   });
   //Delete Button eventListener Binding end(For Step Element)
 
+  //Save Button Binding..Currently Using as play button start
+  $('.buttonGroupOuter .saveButton').click(async function (e) {
+    var parentElement = e.target.parentElement;
+    var activeTourId = parentElement.getAttribute('tourId');
+    const activeTab = await getCurrentTab();
+    var urlObject = new URL(activeTab.url);
+    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+    var tourHostName = urlObject.hostname;
+    var payload = {
+      tourId: activeTourId,
+      tourObj: {
+        tourHostName: tourHostName
+      }
+    };
+    chrome.tabs.sendMessage(activeTab.id, {
+      type: "PRESENT",
+      payload: payload
+    });
+    window.close();
+  });
+  //Save Button Binding..Currently Using as play button end
 
   createTourElementButton.addEventListener('click',function(e){
     accordionListElement.style.display='none';
@@ -243,7 +265,7 @@ var generateAndAppendTemplate = function () {
   addButtonElement0.setAttribute('class','addButton');
   buttonGroup.appendChild(addButtonElement0);
   saveButtonElement0.innerHTML = 'S';
-  saveButtonElement0.setAttribute('class','downloadButton');
+  saveButtonElement0.setAttribute('class','saveButton');
   buttonGroup.appendChild(saveButtonElement0);
   deleteButtonElement0.innerHTML = 'D';
   deleteButtonElement0.setAttribute('class','deleteButton');
