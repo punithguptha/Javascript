@@ -6,3 +6,6 @@ service_workers dont have access to contents of main webpage but it has capabili
 ContentScripts: Files that run on the context of webpages that we are on
  
 
+window.location.href to get the url of current page from contentScripts(not part of extension) ->Also gives us the hashbased full url for a spa
+
+chrome.tabs.query to get the current tab url returns a full url(includes the hashes as well (for spa))
