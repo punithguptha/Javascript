@@ -4,7 +4,7 @@ html {
 
 body {
   font-family: 'Work Sans', sans-serif;
-  min-width: 320px;
+  min-width: 400px;
   color: #333333;
   line-height: 19px;
   font-size: 13px;
@@ -17,7 +17,7 @@ body {
   padding-left: 25px;
 } */
 
-.CreateTour {
+.CreateTour , .UploadTour {
   border: 0;
   background-color: transparent;
   border: 1px solid #000000;
@@ -31,6 +31,12 @@ body {
 }
 
 .CreateTour:hover {
+  background-color: #000000;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.UploadTour:hover{
   background-color: #000000;
   color: #ffffff;
   text-decoration: none;
@@ -82,8 +88,12 @@ body {
     background-color: white;
   }
 
-  .TourElement a{
-    width: 55%;
+  #tourStepAnchor {
+    height: 100%;
+    width: 100%;
+    padding: .75em;
+    border-radius: 0.15em;
+    transition: background .3s ease;
     font-size: medium;
   }
 
@@ -96,6 +106,10 @@ body {
 
   .buttonGroupOuter button{
     margin-left:3px;
+  }
+
+  .buttonGroupOuter a{
+    text-decoration: none;
   }
 
   .StepElement{
@@ -174,13 +188,7 @@ body {
   ul li {
     margin: .5em 0;
   }
-  ul li a.toggle {
-    height: 100%;
-    width: 100%;
-    padding: .75em;
-    border-radius: 0.15em;
-    transition: background .3s ease;
-  }
+  
   /* ul li a.toggle:hover {
     background: rgba(193, 193, 193, 0.9);
   } */

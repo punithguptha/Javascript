@@ -12,6 +12,22 @@ var getCurrentTab= async ()=>{
   let [tab]=await chrome.tabs.query(queryOptions);
   return tab;
 };
+
+var getRandomId=function(){
+  return crypto.randomUUID();
+}
+
+var generateAndStoreTourPayload=function(tourId,tourObj){
+  console.log(tourObj);
+  var prettifiedTourObj = JSON.stringify(tourObj, null, 2);
+  var blob = new Blob([prettifiedTourObj], { type: "text/json" });
+  //To add below to download button link
+  var selector="[tourId='"+tourId+"'] .downloadTourButton a";
+  var tourElement=document.querySelector(selector);
+  tourElement.download = tourObj.tourName+".json";
+  tourElement.href = window.URL.createObjectURL(blob);
+  tourElement.dataset.downloadurl = ["text/json", tourElement.download, tourElement.href].join(":");
+};
 //Utils Section End
 
 var toggleElementFunction = function () {
@@ -37,9 +53,7 @@ var toggleElementFunction = function () {
   });
 };
 
-var getRandomId=function(){
-  return crypto.randomUUID();
-}
+
 
 var updateAccordionList=function(currentStorageData=[]){
   console.log("CurrentStorageData in popup.js updateAccordionList method below: ");
@@ -86,6 +100,8 @@ var updateAccordionList=function(currentStorageData=[]){
         liElement.appendChild(ulElement);
       }
       currentAccordionUlElement.appendChild(liElement);
+      //To update the anchor element of download Button for downloading
+      generateAndStoreTourPayload(tourId,currentStorageData[i].tourObj);
   }
   var accordionListElement=document.querySelector('.AccordionList');
   var formInputElement=document.querySelector('.TourForm');
@@ -175,7 +191,7 @@ var initiateAllEventListeners=async function(){
   //Delete Button eventListener Binding end(For Step Element)
 
   //Save Button Binding..Currently Using as play button start
-  $('.buttonGroupOuter .saveButton').click(async function (e) {
+  $('.buttonGroupOuter .playButton').click(async function (e) {
     var parentElement = e.target.parentElement;
     var activeTourId = parentElement.getAttribute('tourId');
     const activeTab = await getCurrentTab();
@@ -251,25 +267,38 @@ var generateAndAppendTemplate = function () {
   var anchorElement = document.createElement('a');
   //To add text during runtime for this elem
   anchorElement.setAttribute('class', 'toggle');
+  anchorElement.setAttribute('id','tourStepAnchor');
   anchorElement.setAttribute('href', '#');
   var buttonGroup = document.createElement('div');
   buttonGroup.setAttribute('class', 'buttonGroupOuter');
   var editButtonElement0 = document.createElement('button');
   var addButtonElement0 = document.createElement('button');
-  var saveButtonElement0 = document.createElement('button');
+  var playButtonElement0 = document.createElement('button');
   var deleteButtonElement0 = document.createElement('button');
+  var downloadButtonElement0=document.createElement('button');
+  var downloadButtonAnchorElement0=document.createElement('a');
   editButtonElement0.innerHTML = 'E';
   editButtonElement0.setAttribute('class','editButton');
   buttonGroup.appendChild(editButtonElement0);
+  
   addButtonElement0.innerHTML = 'A';
   addButtonElement0.setAttribute('class','addButton');
   buttonGroup.appendChild(addButtonElement0);
-  saveButtonElement0.innerHTML = 'S';
-  saveButtonElement0.setAttribute('class','saveButton');
-  buttonGroup.appendChild(saveButtonElement0);
+  
+  playButtonElement0.innerHTML = 'P';
+  playButtonElement0.setAttribute('class','playButton');
+  buttonGroup.appendChild(playButtonElement0);
+  
+  downloadButtonAnchorElement0.innerHTML='D';
+  downloadButtonElement0.setAttribute('title','Download Tour');
+  downloadButtonElement0.setAttribute('class','downloadTourButton');
+  downloadButtonElement0.appendChild(downloadButtonAnchorElement0);
+  buttonGroup.appendChild(downloadButtonElement0);
+
   deleteButtonElement0.innerHTML = 'D';
   deleteButtonElement0.setAttribute('class','deleteButton');
   buttonGroup.appendChild(deleteButtonElement0);
+
   tourElementDiv.appendChild(anchorElement);
   tourElementDiv.appendChild(buttonGroup);
   tourElementTemplate.content.appendChild(tourElementDiv);
@@ -286,12 +315,12 @@ var generateAndAppendTemplate = function () {
   var buttonGroupInnerElement = document.createElement('div');
   buttonGroupInnerElement.setAttribute('class', 'buttonGroupInner');
   var editButtonElement = document.createElement('button');
-  var saveButtonElement = document.createElement('button');
+  var playButtonElement = document.createElement('button');
   var deleteButtonElement = document.createElement('button');
   editButtonElement.innerHTML = 'E';
   buttonGroupInnerElement.appendChild(editButtonElement);
-  saveButtonElement.innerHTML = 'S';
-  buttonGroupInnerElement.appendChild(saveButtonElement);
+  playButtonElement.innerHTML = 'P';
+  buttonGroupInnerElement.appendChild(playButtonElement);
   deleteButtonElement.innerHTML = 'D';
   deleteButtonElement.setAttribute('class','deleteButton');
   buttonGroupInnerElement.appendChild(deleteButtonElement);
