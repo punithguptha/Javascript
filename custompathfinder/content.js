@@ -207,7 +207,6 @@
             var selector=document.querySelector(this.options.attachTo.element);
             selector.addEventListener('click', () => {
               setTimeout(function(){
-                tour.hide();
                 tour.next();
               }, 500);
            });
