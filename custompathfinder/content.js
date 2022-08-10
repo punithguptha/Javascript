@@ -184,20 +184,40 @@
     });
     for(var i=0;i<steps.length;i++){
       var currentStep=steps[i];
-      tour.addStep({
-        text:currentStep.stepDescription,
-        title:currentStep.stepName,
-        attachTo:{
-          element:currentStep.stepElementPath,
-          on:'auto'
+      var stepOptions = {
+        text: currentStep.stepDescription,
+        title: currentStep.stepName,
+        eventType:currentStep.stepEvent,
+        attachTo: {
+          element: currentStep.stepElementPath,
+          on: 'auto'
         },
-        buttons: [
+        buttons:[
           {
-            text: 'Next',
-            action: tour.next
+            text:'Previous',
+            action:tour.back
+          },
+          {
+            text:'Next',
+            action:tour.next
           }
-        ]
-      });
+        ],
+        when:{
+          show:function(){
+            var selector=document.querySelector(this.options.attachTo.element);
+            selector.addEventListener('click', () => {
+              setTimeout(function(){
+                tour.hide();
+                tour.next();
+              }, 500);
+           });
+          }
+        }
+      };
+      if(currentStep.stepEvent && currentStep.stepEvent==='click'){
+          stepOptions.buttons=false;
+      }
+      tour.addStep(stepOptions);
     }
     tour.start();
   }
