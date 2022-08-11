@@ -103,12 +103,17 @@ body {
     right: 0;
     position: absolute;
     padding-right: 10px;
+    display: inline-flex;
   }
 
   .buttonGroupOuter button{
     margin-left:3px;
   }
 
+  .buttonGroupOuter button img{
+    display: block;
+  }
+  
   .buttonGroupOuter a{
     text-decoration: none;
   }

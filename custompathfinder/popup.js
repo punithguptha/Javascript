@@ -186,6 +186,9 @@ var initiateAllEventListeners=async function(){
   //Delete Button eventListener Binding start(For Tour Element)
   $('.buttonGroupOuter .deleteButton').click(async function(e){
     var parentElement=e.target.parentElement;
+    if(e.target.nodeName==='IMG'){
+      parentElement=parentElement.parentElement;
+    }
     var activeTourId=parentElement.getAttribute('tourId');
     const activeTab=await getCurrentTab();
     var urlObject=new URL(activeTab.url);
@@ -207,6 +210,9 @@ var initiateAllEventListeners=async function(){
   //Delete Button eventListener Binding start(For Step Element)
   $('.buttonGroupInner .deleteButton').click(async function(e){
     var parentElement=e.target.parentElement;
+    if(e.target.nodeName==='IMG'){
+      parentElement=parentElement.parentElement;
+    }
     var activeStepId=parentElement.getAttribute('stepId');
     var activeTourId=parentElement.getAttribute('parentTourId');
     const activeTab=await getCurrentTab();
@@ -232,6 +238,9 @@ var initiateAllEventListeners=async function(){
   //Save Button Binding..Currently Using as play button start
   $('.buttonGroupOuter .playButton').click(async function (e) {
     var parentElement = e.target.parentElement;
+    if(e.target.nodeName==='IMG'){
+      parentElement=parentElement.parentElement;
+    }
     var activeTourId = parentElement.getAttribute('tourId');
     const activeTab = await getCurrentTab();
     var urlObject = new URL(activeTab.url);
@@ -324,7 +333,9 @@ var generateAndAppendTemplate = function () {
   addButtonElement0.setAttribute('class','addButton');
   buttonGroup.appendChild(addButtonElement0);
   
-  playButtonElement0.innerHTML = 'P';
+  var slideShowImgElement=document.createElement('img');
+  slideShowImgElement.src='assets/slideshow-2-line.svg';
+  playButtonElement0.appendChild(slideShowImgElement);
   playButtonElement0.setAttribute('class','playButton');
   buttonGroup.appendChild(playButtonElement0);
   
