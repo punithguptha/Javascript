@@ -5,6 +5,7 @@ html {
 body {
   font-family: 'Work Sans', sans-serif;
   min-width: 400px;
+  min-height: 200px;
   color: #333333;
   line-height: 19px;
   font-size: 13px;
@@ -193,3 +194,46 @@ body {
     background: rgba(193, 193, 193, 0.9);
   } */
 /* Accordion CSS end */
+
+/*loader css start*/
+.LoaderDiv{
+  display: none;
+  /* display: flex; */
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column;
+  /* z-index: 10000000000000; */
+  backdrop-filter: blur(100px);
+}
+
+.LoaderDivText{
+  text-align: center;
+  font-size: x-large;
+  padding-bottom: 50px;
+  font-weight: bolder;
+}
+
+.LoaderDivAnimation {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid black;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/*loader css end*/

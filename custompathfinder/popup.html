@@ -18,174 +18,6 @@
   </div>
   <div class="AccordionList">
     <ul class="accordion">
-        <li>
-          <div class="TourElement">
-            <a class="toggle" href="#">Tour #1</a>
-            <div class="buttonGroupOuter">
-              <!-- Edit -->
-              <button class="editButton">E</button>
-              <!-- Add -->
-              <button class="addButton">A</button>
-              <!-- Download/Save -->
-              <button class="playButton">P</button>
-              <!-- Delete -->
-              <button class="deleteButton">D</button>
-            </div>
-          </div>
-          <ul class="inner">
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #1</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #2</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #3</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <div class="TourElement">
-            <a class="toggle" href="#;">Tour #2</a>
-            <div class="buttonGroupOuter">
-              <!-- Edit -->
-              <button>E</button>
-              <!-- Add -->
-              <button>A</button>
-              <!-- Download/Save -->
-              <button>S</button>
-              <!-- Delete -->
-              <button>D</button>
-            </div>
-          </div>
-          <ul class="inner">
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #1</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #2</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #3</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <div class="TourElement">
-            <a class="toggle" href="#">Tour #3</a>
-            <div class="buttonGroupOuter">
-              <!-- Edit -->
-              <button>E</button>
-              <!-- Add -->
-              <button>A</button>
-              <!-- Download/Save -->
-              <button>S</button>
-              <!-- Delete -->
-              <button>D</button>
-            </div>
-          </div>
-          <ul class="inner">
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #1</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #2</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div class="StepElement">
-                <div class="StepText">Step #3</div>
-                <div class="buttonGroupInner">
-                  <!-- Edit -->
-                  <button>E</button>
-                  <!-- Save/Download -->
-                  <button>S</button>
-                  <!-- //Delete -->
-                  <button>D</button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </li>
     </ul>
   </div>
   <div class="TourForm">
@@ -196,7 +28,12 @@
       <button class="saveButton">Save</button>
     </div>
   </div>
+  <input type="file" id="hiddenFileInput" style="display: none;">
   <div class="p10"></div>
+  <div class="LoaderDiv">
+    <div class="LoaderDivText">Loading Tour </div>
+    <div class="LoaderDivAnimation" style='text-align:center'></div>
+  </div>
 </body>
 
 </html>

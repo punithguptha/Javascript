@@ -17,14 +17,14 @@ var getRandomId=function(){
   return crypto.randomUUID();
 }
 
-var generateAndStoreTourPayload=function(tourId,tourObj){
-  console.log(tourObj);
-  var prettifiedTourObj = JSON.stringify(tourObj, null, 2);
-  var blob = new Blob([prettifiedTourObj], { type: "text/json" });
+var generateAndStoreTourPayload=function(tourId,tour){
+  console.log(tour);
+  var prettifiedTour = JSON.stringify(tour, null, 2);
+  var blob = new Blob([prettifiedTour], { type: "text/json" });
   //To add below to download button link
   var selector="[tourId='"+tourId+"'] .downloadTourButton a";
   var tourElement=document.querySelector(selector);
-  tourElement.download = tourObj.tourName+".json";
+  tourElement.download = tour.tourObj.tourName+".json";
   tourElement.href = window.URL.createObjectURL(blob);
   tourElement.dataset.downloadurl = ["text/json", tourElement.download, tourElement.href].join(":");
 };
@@ -101,7 +101,7 @@ var updateAccordionList=function(currentStorageData=[]){
       }
       currentAccordionUlElement.appendChild(liElement);
       //To update the anchor element of download Button for downloading
-      generateAndStoreTourPayload(tourId,currentStorageData[i].tourObj);
+      generateAndStoreTourPayload(tourId,currentStorageData[i]);
   }
   var accordionListElement=document.querySelector('.AccordionList');
   var formInputElement=document.querySelector('.TourForm');
@@ -113,6 +113,12 @@ var updateAccordionList=function(currentStorageData=[]){
     formInputElement.style.display='none';
   }
   initiateAllEventListeners();
+
+  //If loader is still present then remove it and also clearing the input field element just to be sure..
+  var loaderDiv=document.querySelector('.LoaderDiv');
+  var hiddenInputFileElement=document.querySelector('#hiddenFileInput');
+  if(loaderDiv.style.display==='flex'){loaderDiv.style.display='none';}
+  hiddenInputFileElement.value='';
 };
 
 var initiateAllEventListeners=async function(){
@@ -126,6 +132,39 @@ var initiateAllEventListeners=async function(){
   var saveButton=document.querySelector('.buttonGroupForm .saveButton');
   var tourNameElement=document.querySelector('.TourForm input');
   var tourDescriptionElement=document.querySelector('.TourForm textarea');
+
+  //Handling the Upload Event Listener start
+  var uploadTourButton=document.querySelector('.UploadTour');
+  var hiddenInputFileElement=document.querySelector('#hiddenFileInput');
+  var loaderDiv=document.querySelector('.LoaderDiv');
+  var currentActiveTabId=undefined;
+  uploadTourButton.addEventListener('click',async function(){
+    var currentActiveTab=await getCurrentTab();
+    currentActiveTabId=currentActiveTab.id;
+    hiddenInputFileElement.click();
+    loaderDiv.style.display='flex';
+  });
+  hiddenInputFileElement.addEventListener('change',function(){
+    if(!this.files.length && !this.files[0].type==='application/json'){
+      //ToDo: Handle the error and show some message anywhere
+      loaderDiv.style.display='none';
+      hiddenInputFileElement.value='';
+    }else{
+      (this.files[0].text()).then(async function(result){
+        var tourObject=JSON.parse(result);
+        // const activeTab=await getCurrentTab();
+        chrome.tabs.sendMessage(currentActiveTabId,{
+          type:"NEW",
+          payload: tourObject
+        },updateAccordionList);
+      },function(error){
+        console.log("Some error in file processing");
+        reject(error);
+      });
+    }
+  })
+  //Handling the Upload Event Listener end
+
 
   //Add Button eventListener Binding  start
   $('.buttonGroupOuter .addButton').click(async function(e){
