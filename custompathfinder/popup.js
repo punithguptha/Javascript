@@ -118,7 +118,7 @@ var updateAccordionList=function(currentStorageData=[]){
   var loaderDiv=document.querySelector('.LoaderDiv');
   var hiddenInputFileElement=document.querySelector('#hiddenFileInput');
   if(loaderDiv.style.display==='flex'){loaderDiv.style.display='none';}
-  hiddenInputFileElement.value='';
+  // hiddenInputFileElement.value='';
 };
 
 var initiateAllEventListeners=async function(){
@@ -138,28 +138,34 @@ var initiateAllEventListeners=async function(){
   var hiddenInputFileElement=document.querySelector('#hiddenFileInput');
   var loaderDiv=document.querySelector('.LoaderDiv');
   var currentActiveTabId=undefined;
-  uploadTourButton.addEventListener('click',async function(){
+  uploadTourButton.addEventListener('click',async function(e){
+    console.log("Upload Tour Button event Listener Function");
     var currentActiveTab=await getCurrentTab();
     currentActiveTabId=currentActiveTab.id;
     hiddenInputFileElement.click();
     loaderDiv.style.display='flex';
   });
-  hiddenInputFileElement.addEventListener('change',function(){
-    if(!this.files.length && !this.files[0].type==='application/json'){
+  hiddenInputFileElement.addEventListener('change',function(e){
+    var clonedNode=e.target.cloneNode(true);
+    console.log("Inside change event listener for hidden InputFileElement");
+    console.log(e.target);
+    e.target.value='';
+    if(!clonedNode.files.length || !clonedNode.files[0].type==='application/json'){
       //ToDo: Handle the error and show some message anywhere
       loaderDiv.style.display='none';
-      hiddenInputFileElement.value='';
     }else{
-      (this.files[0].text()).then(async function(result){
+      (clonedNode.files[0].text()).then(async function(result){
         var tourObject=JSON.parse(result);
         // const activeTab=await getCurrentTab();
         chrome.tabs.sendMessage(currentActiveTabId,{
           type:"NEW",
           payload: tourObject
         },updateAccordionList);
+        window.close();
       },function(error){
         console.log("Some error in file processing");
         reject(error);
+        window.close();
       });
     }
   })
@@ -182,7 +188,15 @@ var initiateAllEventListeners=async function(){
   });
   //Add Button eventListener Binding  end
 
-  
+  //Download Button eventListener Binding start(For Tour Element)
+  $('.buttonGroupOuter .downloadTourButton').click(function(e){
+    if(e.target.nodeName==='BUTTON'){
+      var buttonElement=e.target;
+      var anchorElement=buttonElement.firstChild;
+      anchorElement.click();
+    }
+  });
+  //Download Button eventListener Binding end (For Tour Element)
   //Delete Button eventListener Binding start(For Tour Element)
   $('.buttonGroupOuter .deleteButton').click(async function(e){
     var parentElement=e.target.parentElement;
@@ -325,27 +339,36 @@ var generateAndAppendTemplate = function () {
   var deleteButtonElement0 = document.createElement('button');
   var downloadButtonElement0=document.createElement('button');
   var downloadButtonAnchorElement0=document.createElement('a');
-  editButtonElement0.innerHTML = 'E';
+
+  var editImgElement=document.createElement('img');
+  editImgElement.src='assets/EditIcon-16px.svg';
+  editButtonElement0.appendChild(editImgElement);
   editButtonElement0.setAttribute('class','editButton');
   buttonGroup.appendChild(editButtonElement0);
   
-  addButtonElement0.innerHTML = 'A';
+  var addImgElement=document.createElement('img');
+  addImgElement.src='assets/AddIcon-16px.svg';
+  addButtonElement0.appendChild(addImgElement);
   addButtonElement0.setAttribute('class','addButton');
   buttonGroup.appendChild(addButtonElement0);
   
   var slideShowImgElement=document.createElement('img');
-  slideShowImgElement.src='assets/slideshow-2-line.svg';
+  slideShowImgElement.src='assets/SlideshowIcon-16px.svg';
   playButtonElement0.appendChild(slideShowImgElement);
   playButtonElement0.setAttribute('class','playButton');
   buttonGroup.appendChild(playButtonElement0);
   
-  downloadButtonAnchorElement0.innerHTML='D';
+  var downloadImgElement=document.createElement('img');
+  downloadImgElement.src='assets/DownloadIcon-16px.svg';
+  downloadButtonElement0.appendChild(downloadImgElement);
   downloadButtonElement0.setAttribute('title','Download Tour');
   downloadButtonElement0.setAttribute('class','downloadTourButton');
   downloadButtonElement0.appendChild(downloadButtonAnchorElement0);
   buttonGroup.appendChild(downloadButtonElement0);
 
-  deleteButtonElement0.innerHTML = 'D';
+  var deleteImgElement=document.createElement('img');
+  deleteImgElement.src='assets/DeleteIcon-16px.svg';
+  deleteButtonElement0.appendChild(deleteImgElement);
   deleteButtonElement0.setAttribute('class','deleteButton');
   buttonGroup.appendChild(deleteButtonElement0);
 
@@ -367,13 +390,23 @@ var generateAndAppendTemplate = function () {
   var editButtonElement = document.createElement('button');
   var playButtonElement = document.createElement('button');
   var deleteButtonElement = document.createElement('button');
-  editButtonElement.innerHTML = 'E';
+
+  var editImgElement=document.createElement('img');
+  editImgElement.src='assets/EditIcon-12px.svg';
+  editButtonElement.appendChild(editImgElement);
   buttonGroupInnerElement.appendChild(editButtonElement);
-  playButtonElement.innerHTML = 'P';
+
+  var slideShowImgElement=document.createElement('img');
+  slideShowImgElement.src='assets/SlideshowIcon-12px.svg';
+  playButtonElement.appendChild(slideShowImgElement);
   buttonGroupInnerElement.appendChild(playButtonElement);
-  deleteButtonElement.innerHTML = 'D';
+
+  var deleteImgElement=document.createElement('img');
+  deleteImgElement.src='assets/DeleteIcon-12px.svg';
+  deleteButtonElement.appendChild(deleteImgElement);
   deleteButtonElement.setAttribute('class','deleteButton');
   buttonGroupInnerElement.appendChild(deleteButtonElement);
+
   stepElement.appendChild(stepTextElement);
   stepElement.appendChild(buttonGroupInnerElement);
   listElement.appendChild(stepElement);

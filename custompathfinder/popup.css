@@ -113,7 +113,7 @@ body {
   .buttonGroupOuter button img{
     display: block;
   }
-  
+
   .buttonGroupOuter a{
     text-decoration: none;
   }
@@ -137,6 +137,10 @@ body {
   .buttonGroupInner button{
     font-size: smaller;
     margin-left:3px;
+  }
+  
+  .buttonGroupInner button img{
+    display: block;
   }
 
   a {

@@ -238,6 +238,10 @@
     var responseData=undefined;
     if(type==="NEW" && tourHostName){
       activeTourId=payload.tourId;
+      //Filter out if there are any existing tour Elements with this newly passed tourId(can happen during upload flow)
+      allDataForHostName=allDataForHostName.filter(function(item){
+        return item.tourId!=activeTourId;
+      });
       responseData = [...allDataForHostName, payload];
       chrome.storage.sync.set({
         [tourHostName]: JSON.stringify(responseData)
