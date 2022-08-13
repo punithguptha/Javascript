@@ -1,3 +1,25 @@
+//Constants Section start
+const TourEditButtonSelector='.buttonGroupOuter .editButton';
+const TourAddButtonSelector='.buttonGroupOuter .addButton';
+const TourPresentButtonSelector='.buttonGroupOuter .playButton';
+const TourDownloadButtonSelector='.buttonGroupOuter .downloadTourButton';
+const TourDeleteButtonSelector='.buttonGroupOuter .deleteButton';
+const StepEditButtonSelector='.buttonGroupInner .editButton';
+const StepPresentButtonSelector='.buttonGroupInner .playButton';
+const StepDeleteButtonSelector='.buttonGroupInner .deleteButton';
+const ToggleElementSelector='.toggle';
+const CreateTourButtonSelector='.CreateTour';
+const TourFormSelector='.TourForm';
+const TourFormNameSelector='.TourForm input';
+const TourFormDescriptionSelector='.TourForm textarea';
+const TourFormCancelSelector='.TourForm .cancelButton';
+const TourFormSaveSelector='.TourForm .saveButton';
+const AccordionListSelector='.AccordionList';
+const UploadTourButtonSelector='.UploadTour';
+const HiddenInputElementSelector='#hiddenFileInput';
+const LoaderDivElementSelector='.LoaderDiv';
+//Constants Section end
+
 //Utils Section Start
 var getCurrentTab= async ()=>{
   let queryOptions={active:true,lastFocusedWindow:true};
@@ -17,6 +39,15 @@ var getRandomId=function(){
   return crypto.randomUUID();
 }
 
+var removeExistingEventListeners=function(selector){
+  //Removing existing eventListeners by cloning process
+  var selectedElements=document.querySelectorAll(selector);
+  for(var i=0;i<selectedElements.length;i++){
+    var cloneofSelectedElement=selectedElements[i].cloneNode(true);
+    selectedElements[i].parentNode.replaceChild(cloneofSelectedElement,selectedElements[i]);
+  }
+}
+
 var generateAndStoreTourPayload=function(tourId,tour){
   console.log(tour);
   var prettifiedTour = JSON.stringify(tour, null, 2);
@@ -31,25 +62,28 @@ var generateAndStoreTourPayload=function(tourId,tour){
 //Utils Section End
 
 var toggleElementFunction = function () {
-  $('.toggle').click(function (e) {
-    e.preventDefault();
-
-    var outerTourElement = e.target.parentElement.parentElement;
-    var innerElementList = outerTourElement.querySelectorAll('.inner');
-    if (innerElementList.length) {
-      for (var i = 0; i < innerElementList.length; i++) {
-        var currentInnerElement = innerElementList[i];
-        if (currentInnerElement.style.display === 'none' || currentInnerElement.style.display === "") {
-          e.target.style.backgroundColor = 'black';
-          e.target.style.color = 'white';
-          currentInnerElement.style.display = 'block';
-        } else {
-          e.target.style.backgroundColor = 'white';
-          e.target.style.color = 'black';
-          currentInnerElement.style.display = 'none';
+  removeExistingEventListeners(ToggleElementSelector);
+  var toggleElements=document.querySelectorAll(ToggleElementSelector);
+  toggleElements.forEach(function(toggleElement){
+    toggleElement.addEventListener('click',function (e) {
+      e.preventDefault();
+      var outerTourElement = e.target.parentElement.parentElement;
+      var innerElementList = outerTourElement.querySelectorAll('.inner');
+      if (innerElementList.length) {
+        for (var i = 0; i < innerElementList.length; i++) {
+          var currentInnerElement = innerElementList[i];
+          if (currentInnerElement.style.display === 'none' || currentInnerElement.style.display === "") {
+            e.target.style.backgroundColor = 'black';
+            e.target.style.color = 'white';
+            currentInnerElement.style.display = 'block';
+          } else {
+            e.target.style.backgroundColor = 'white';
+            e.target.style.color = 'black';
+            currentInnerElement.style.display = 'none';
+          }
         }
       }
-    }
+    });
   });
 };
 
@@ -65,35 +99,23 @@ var updateAccordionList=function(currentStorageData=[]){
   var tourElementTemplate = document.getElementById('TourElementTemplate');
 
   for(var i=0;i<currentStorageData.length;i++){
-      var defaultTourName='Tour #'+i;
-      var defaultTourDescription='Tour #'+i+" Description";
       var tourId=currentStorageData[i].tourId;
-      var currTourName=currentStorageData[i].tourObj?.tourName;
-      currTourName=(currTourName)?currTourName:defaultTourName;
-      var currTourDescription=currentStorageData[i].tourObj?.tourDescription;
-      currTourDescription=(currTourDescription)?currTourDescription:defaultTourDescription;
       var liElement=document.createElement('li');
       var tourElementCloned = tourElementTemplate.content.firstElementChild.cloneNode(true);
-      tourElementCloned.querySelector('a').innerHTML=currTourName;
-      tourElementCloned.querySelector('a').setAttribute('title',currTourDescription);
+      tourElementCloned.querySelector('a').innerHTML=currentStorageData[i].tourObj.tourName;
+      tourElementCloned.querySelector('a').setAttribute('title',currentStorageData[i].tourObj.tourDescription);
       tourElementCloned.querySelector('.buttonGroupOuter').setAttribute('tourId',tourId);
       liElement.appendChild(tourElementCloned);
 
       var steps=currentStorageData[i].tourObj?.steps;
       for(var j=0;j<steps?.length;j++){
-        var defaultStepName='Step #' +j;
-        var defaultStepDescription='Step #'+i+'Description';
-        var currStepName=steps[j]?.stepName;
-        currStepName=(currStepName)?currStepName:defaultStepName;
-        var currStepDescription=steps[j]?.stepDescription;
-        currStepDescription=(currStepDescription)?currStepDescription:defaultStepDescription;
         var currStepId=steps[j]?.stepId;
         var ulElement=document.createElement('ul');
         ulElement.setAttribute('class','inner');
         var stepElementTemplate= document.getElementById('StepElementTemplate');
         var stepElementCloned=stepElementTemplate.content.firstElementChild.cloneNode(true);
-        stepElementCloned.querySelector('.StepText').innerHTML=currStepName;
-        stepElementCloned.querySelector('.StepElement').setAttribute('title',currStepDescription);
+        stepElementCloned.querySelector('.StepText').innerHTML=steps[j].stepName;
+        stepElementCloned.querySelector('.StepElement').setAttribute('title',steps[j].stepDescription);
         stepElementCloned.querySelector('.buttonGroupInner').setAttribute('stepId',currStepId);
         stepElementCloned.querySelector('.buttonGroupInner').setAttribute('parentTourId',tourId);
         ulElement.appendChild(stepElementCloned);
@@ -123,201 +145,289 @@ var updateAccordionList=function(currentStorageData=[]){
 
 var initiateAllEventListeners=async function(){
   toggleElementFunction();
-  var accordionListElement=document.querySelector('.AccordionList');
-  var formInputElement=document.querySelector('.TourForm');
-  var createTourButton=document.querySelector('.CreateTour');
-  var createTourParent=createTourButton.parentElement;
-  var createTourElementButton = document.querySelector('.CreateTour');
-  var cancelButton=document.querySelector('.buttonGroupForm .cancelButton');
-  var saveButton=document.querySelector('.buttonGroupForm .saveButton');
-  var tourNameElement=document.querySelector('.TourForm input');
-  var tourDescriptionElement=document.querySelector('.TourForm textarea');
-
-  //Handling the Upload Event Listener start
-  var uploadTourButton=document.querySelector('.UploadTour');
-  var hiddenInputFileElement=document.querySelector('#hiddenFileInput');
-  var loaderDiv=document.querySelector('.LoaderDiv');
+  var accordionListElement=document.querySelector(AccordionListSelector);
+  var formInputElement=document.querySelector(TourFormSelector);
+  var createTourButton=document.querySelector(CreateTourButtonSelector);
+  var tourNameElement=document.querySelector(TourFormNameSelector);
+  var tourDescriptionElement=document.querySelector(TourFormDescriptionSelector);
+  var loaderDiv=document.querySelector(LoaderDivElementSelector);
+  /*ToDo: Instead of getting tabId everyTime write create a method in background which on
+  each tabchange/refresh/show events sends the tab details which we listen and store here.
+  */
   var currentActiveTabId=undefined;
-  uploadTourButton.addEventListener('click',async function(e){
-    console.log("Upload Tour Button event Listener Function");
-    var currentActiveTab=await getCurrentTab();
-    currentActiveTabId=currentActiveTab.id;
-    hiddenInputFileElement.click();
-    loaderDiv.style.display='flex';
-  });
-  hiddenInputFileElement.addEventListener('change',function(e){
-    var clonedNode=e.target.cloneNode(true);
-    console.log("Inside change event listener for hidden InputFileElement");
-    console.log(e.target);
-    e.target.value='';
-    if(!clonedNode.files.length || !clonedNode.files[0].type==='application/json'){
-      //ToDo: Handle the error and show some message anywhere
-      loaderDiv.style.display='none';
-    }else{
-      (clonedNode.files[0].text()).then(async function(result){
-        var tourObject=JSON.parse(result);
-        // const activeTab=await getCurrentTab();
-        chrome.tabs.sendMessage(currentActiveTabId,{
-          type:"NEW",
-          payload: tourObject
+
+  //Generic Events  Start
+  
+    //CreateTourButton EventListener Start
+    removeExistingEventListeners(CreateTourButtonSelector);
+    var createTourButton=document.querySelector(CreateTourButtonSelector);
+    createTourButton.addEventListener('click',function(e){
+      var parentElement=e.target.parentElement;
+      tourNameElement.value='';
+      tourDescriptionElement.value='';
+      parentElement.style.display='none';
+      accordionListElement.style.display='none';
+      formInputElement.style.display='flex';
+    });
+    //CreateTourButton EventListener End
+
+    //CancelButton EventListener Start
+    removeExistingEventListeners(TourFormCancelSelector);
+    var cancelButton=document.querySelector(TourFormCancelSelector);
+    cancelButton.addEventListener('click',function(e){
+      accordionListElement.style.display='block';
+      createTourButton.parentElement.style.display='block';
+      formInputElement.style.display='none';
+    });
+    //CancelButton EventListener End
+
+    //SaveButton EventListener Start
+    removeExistingEventListeners(TourFormSaveSelector);
+    var saveButton=document.querySelector(TourFormSaveSelector);
+    saveButton.addEventListener('click',async function(e){
+      //tourId,tourName,tourDescription,tourUrl,isActive,tourHostName
+      //Make the current tour as active in the storage, such that when we send the payload from site's ui we can identify to which object we need to append to
+      var tourName=tourNameElement.value;
+      var tourDescription=tourDescriptionElement.value;
+      var tourId=getRandomId();
+      var isActive=true;
+      const activeTab= await getCurrentTab();
+      var urlObject=new URL(activeTab.url);
+      //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+      var tourHostName=urlObject.hostname;
+      //Storing new tour object in chrome storage by sending this info to ContentScript which adds and returns the updated info
+      var payload={
+        "tourId":tourId,
+        "isActive":isActive,
+        "tourObj":{
+          "tourName":tourName,
+          "tourDescription":tourDescription,
+          "tourUrl":activeTab.url,
+          "tourHostName":tourHostName,
+          "tenantId":'7586',
+          "tenantName":'shubhqa',
+          'steps':[]
+        }
+      };
+      chrome.tabs.sendMessage(activeTab.id,{
+        type:"NEW",
+        payload: payload
+      },updateAccordionList);
+    });
+    //SaveButton EventListener End
+
+    //UploadTourButton EventListener Start
+    removeExistingEventListeners(UploadTourButtonSelector);
+    removeExistingEventListeners(HiddenInputElementSelector);
+    var uploadTourButton=document.querySelector(UploadTourButtonSelector);
+    var hiddenInputFileElement=document.querySelector(HiddenInputElementSelector);
+    uploadTourButton.addEventListener('click',async function(e){
+      console.log("Upload Tour Button event Listener Function");
+      var currentActiveTab=await getCurrentTab();
+      currentActiveTabId=currentActiveTab.id;
+      hiddenInputFileElement.click();
+      loaderDiv.style.display='flex';
+    });
+    
+    hiddenInputFileElement.addEventListener('change',function(e){
+      var clonedNode=e.target.cloneNode(true);
+      console.log("Inside change event listener for hidden InputFileElement");
+      console.log(e.target);
+      e.target.value='';
+      if(!clonedNode.files.length || !clonedNode.files[0].type==='application/json'){
+        //ToDo: Handle the error and show some message anywhere
+        loaderDiv.style.display='none';
+      }else{
+        (clonedNode.files[0].text()).then(async function(result){
+          var tourObject=JSON.parse(result);
+          // const activeTab=await getCurrentTab();
+          chrome.tabs.sendMessage(currentActiveTabId,{
+            type:"NEW",
+            payload: tourObject
+          },updateAccordionList);
+        },function(error){
+          console.log("Some error in file processing");
+          reject(error);
+          window.close();
+        });
+      }
+    })
+    //UploadTourButton EventListener End
+
+  //Generic Events End
+
+  //Tour Element Events Start
+
+    //EditButton EventListener Start
+    removeExistingEventListeners(TourEditButtonSelector);
+    var tourEditButtons=document.querySelectorAll(TourEditButtonSelector);
+    tourEditButtons.forEach(function(tourEditButton){
+      tourEditButton.addEventListener('click',function(e){
+        console.log("Inside Edit Tour Event Handler");
+      });
+    });
+
+    //EditButton EventListener End
+
+    //AddButton EventListener Start
+    removeExistingEventListeners(TourAddButtonSelector);
+    var tourAddButtons=document.querySelectorAll(TourAddButtonSelector);
+    tourAddButtons.forEach(function(tourAddButton){
+      tourAddButton.addEventListener('click',async function(e){
+        var parentElement=e.target.parentElement;
+        /*
+        This image logic is for when user clicks the image inside button due to event bubbling the button receives a click event but
+        with targetElement as image, so we need to correct this to get the tourId 
+        */
+        if(e.target.nodeName==='IMG'){
+          parentElement=parentElement.parentElement;
+        }
+        var activeTourId=parentElement.getAttribute('tourId');
+        const activeTab= await getCurrentTab();
+        payload={
+          tourId:activeTourId
+        }
+        chrome.tabs.sendMessage(activeTab.id,{
+          type:"START",
+          payload: payload
         },updateAccordionList);
         window.close();
-      },function(error){
-        console.log("Some error in file processing");
-        reject(error);
+      });
+    });
+    //AddButton EventListener End
+
+    //PresentButton EventListener Start
+    removeExistingEventListeners(TourPresentButtonSelector);
+    var tourPresentButtons=document.querySelectorAll(TourPresentButtonSelector);
+    tourPresentButtons.forEach(function(tourPresentButton){
+      tourPresentButton.addEventListener('click',async function (e) {
+        var parentElement = e.target.parentElement
+        if(e.target.nodeName==='IMG'){
+          parentElement=parentElement.parentElement;
+        }
+        var activeTourId = parentElement.getAttribute('tourId');
+        const activeTab = await getCurrentTab();
+        var urlObject = new URL(activeTab.url);
+        //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+        var tourHostName = urlObject.hostname;
+        var payload = {
+          tourId: activeTourId,
+          tourObj: {
+            tourHostName: tourHostName
+          }
+        };
+        chrome.tabs.sendMessage(activeTab.id, {
+          type: "PRESENT",
+          payload: payload
+        });
         window.close();
       });
-    }
-  })
-  //Handling the Upload Event Listener end
-
-
-  //Add Button eventListener Binding  start
-  $('.buttonGroupOuter .addButton').click(async function(e){
-    var parentElement=e.target.parentElement;
-    var activeTourId=parentElement.getAttribute('tourId');
-    const activeTab= await getCurrentTab();
-    payload={
-      tourId:activeTourId
-    }
-    chrome.tabs.sendMessage(activeTab.id,{
-      type:"START",
-      payload: payload
-    },updateAccordionList);
-    window.close();
-  });
-  //Add Button eventListener Binding  end
-
-  //Download Button eventListener Binding start(For Tour Element)
-  $('.buttonGroupOuter .downloadTourButton').click(function(e){
-    if(e.target.nodeName==='BUTTON'){
-      var buttonElement=e.target;
-      var anchorElement=buttonElement.firstChild;
-      anchorElement.click();
-    }
-  });
-  //Download Button eventListener Binding end (For Tour Element)
-  //Delete Button eventListener Binding start(For Tour Element)
-  $('.buttonGroupOuter .deleteButton').click(async function(e){
-    var parentElement=e.target.parentElement;
-    if(e.target.nodeName==='IMG'){
-      parentElement=parentElement.parentElement;
-    }
-    var activeTourId=parentElement.getAttribute('tourId');
-    const activeTab=await getCurrentTab();
-    var urlObject=new URL(activeTab.url);
-    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
-    var tourHostName=urlObject.hostname;
-    var payload = {
-      tourId: activeTourId,
-      tourObj: {
-        tourHostName: tourHostName
-      }
-    };
-    chrome.tabs.sendMessage(activeTab.id,{
-      type:"DELETETOUR",
-      payload:payload
-    },updateAccordionList);
-  });
-  //Delete Button eventListener Binding end(For Tour Element)
-
-  //Delete Button eventListener Binding start(For Step Element)
-  $('.buttonGroupInner .deleteButton').click(async function(e){
-    var parentElement=e.target.parentElement;
-    if(e.target.nodeName==='IMG'){
-      parentElement=parentElement.parentElement;
-    }
-    var activeStepId=parentElement.getAttribute('stepId');
-    var activeTourId=parentElement.getAttribute('parentTourId');
-    const activeTab=await getCurrentTab();
-    var urlObject=new URL(activeTab.url);
-    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
-    var tourHostName=urlObject.hostname;
-    var payload={
-      tourId:activeTourId,
-      tourObj:{
-        tourHostName:tourHostName,
-        steps:[
-          {stepId:activeStepId}
-        ]
-      }
-    };
-    chrome.tabs.sendMessage(activeTab.id,{
-      type:"DELETESTEP",
-      payload:payload
-    },updateAccordionList);
-  });
-  //Delete Button eventListener Binding end(For Step Element)
-
-  //Save Button Binding..Currently Using as play button start
-  $('.buttonGroupOuter .playButton').click(async function (e) {
-    var parentElement = e.target.parentElement;
-    if(e.target.nodeName==='IMG'){
-      parentElement=parentElement.parentElement;
-    }
-    var activeTourId = parentElement.getAttribute('tourId');
-    const activeTab = await getCurrentTab();
-    var urlObject = new URL(activeTab.url);
-    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
-    var tourHostName = urlObject.hostname;
-    var payload = {
-      tourId: activeTourId,
-      tourObj: {
-        tourHostName: tourHostName
-      }
-    };
-    chrome.tabs.sendMessage(activeTab.id, {
-      type: "PRESENT",
-      payload: payload
     });
-    window.close();
-  });
-  //Save Button Binding..Currently Using as play button end
 
-  createTourElementButton.addEventListener('click',function(e){
-    accordionListElement.style.display='none';
-    createTourParent.style.display='none';
-    formInputElement.style.display='flex';
-  });
+    //PresentButton EventListener End
 
-  cancelButton.addEventListener('click', function(e){
-    accordionListElement.style.display='block';
-    createTourParent.style.display='block';
-    formInputElement.style.display='none';
-  });
+    //DownloadButton EventListener Start
+    removeExistingEventListeners(TourDownloadButtonSelector);
+    var tourDownloadButtons=document.querySelectorAll(TourDownloadButtonSelector);
+    tourDownloadButtons.forEach(function(tourDownloadButton){
+      tourDownloadButton.addEventListener('click',function(e){
+        var anchorElement=undefined;
+        if(e.target.nodeName==='IMG'){
+          anchorElement=e.target.nextElementSibling;
+        }else{
+          anchorElement=e.target.children[1];
+        }
+        anchorElement.click();
+      });
+    });
+    //DownloadButton EventListener End
 
-  saveButton.addEventListener('click',async function(e){
-    //tourId,tourName,tourDescription,tourUrl,isActive,tourHostName
-    //Make the current tour as active in the storage, such that when we send the payload from site's ui we can identify to which object we need to append to
-    var tourName=tourNameElement.value;
-    var tourDescription=tourDescriptionElement.value;
-    var tourId=getRandomId();
-    var isActive=true;
-    const activeTab= await getCurrentTab();
-    var urlObject=new URL(activeTab.url);
-    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
-    var tourHostName=urlObject.hostname;
-    //Storing new tour object in chrome storage by sending this info to ContentScript which adds and returns the updated info
-    var payload={
-      "tourId":tourId,
-      "isActive":isActive,
-      "tourObj":{
-        "tourName":tourName,
-        "tourDescription":tourDescription,
-        "tourUrl":activeTab.url,
-        "tourHostName":tourHostName,
-        "tenantId":'7586',
-        "tenantName":'shubhqa',
-        'steps':[]
-      }
-    };
-    chrome.tabs.sendMessage(activeTab.id,{
-      type:"NEW",
-      payload: payload
-    },updateAccordionList);
-  });
+    //DeleteButton EventListener Start
+    removeExistingEventListeners(TourDeleteButtonSelector);
+    var tourDeleteButtons=document.querySelectorAll(TourDeleteButtonSelector);
+    tourDeleteButtons.forEach(function(tourDeleteButton){
+      tourDeleteButton.addEventListener('click',async function(e){
+        var parentElement=e.target.parentElement;
+        if(e.target.nodeName==='IMG'){
+          parentElement=parentElement.parentElement;
+        }
+        var activeTourId=parentElement.getAttribute('tourId');
+        const activeTab=await getCurrentTab();
+        var urlObject=new URL(activeTab.url);
+        //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+        var tourHostName=urlObject.hostname;
+        var payload = {
+          tourId: activeTourId,
+          tourObj: {
+            tourHostName: tourHostName
+          }
+        };
+        chrome.tabs.sendMessage(activeTab.id,{
+          type:"DELETETOUR",
+          payload:payload
+        },updateAccordionList);
+      })
+    });
+    //DeleteButton EventListener End
 
-  
+  //Tour Element Events End
+
+
+  //Step Element Events Start
+
+    //EditButton EventListener Start
+    removeExistingEventListeners(StepEditButtonSelector);
+    var stepEditButtons=document.querySelectorAll(StepEditButtonSelector);
+    stepEditButtons.forEach(function(stepEditButton){
+      stepEditButton.addEventListener('click',function(e){
+        console.log('Inside Edit Step Event Handler');
+      });
+    });
+    //EditButton EventListener End
+
+    //PlayButton EventListener Start
+    removeExistingEventListeners(StepPresentButtonSelector);
+    var stepPresentButtons=document.querySelectorAll(StepPresentButtonSelector);
+    stepPresentButtons.forEach(function(stepPresentButton){
+      stepPresentButton.addEventListener('click',function(e){
+        console.log("Inside Present Step Event Handler");
+      });
+    });
+    //PlayButton EventListener End
+
+    //DeleteButton EventListener Start
+    removeExistingEventListeners(StepDeleteButtonSelector);
+    var stepDeleteButtons=document.querySelectorAll(StepDeleteButtonSelector);
+    stepDeleteButtons.forEach(function(stepDeleteButton){
+      stepDeleteButton.addEventListener('click',async function(e){
+        var parentElement=e.target.parentElement;
+        if(e.target.nodeName==='IMG'){
+          parentElement=parentElement.parentElement;
+        }
+        var activeStepId=parentElement.getAttribute('stepId');
+        var activeTourId=parentElement.getAttribute('parentTourId');
+        const activeTab=await getCurrentTab();
+        var urlObject=new URL(activeTab.url);
+        //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+        var tourHostName=urlObject.hostname;
+        var payload={
+          tourId:activeTourId,
+          tourObj:{
+            tourHostName:tourHostName,
+            steps:[
+              {stepId:activeStepId}
+            ]
+          }
+        };
+        chrome.tabs.sendMessage(activeTab.id,{
+          type:"DELETESTEP",
+          payload:payload
+        },updateAccordionList);
+      });
+    });
+    //DeleteButton EventListener End
+
+  //Step Element Events End
 }
 
 var generateAndAppendTemplate = function () {
@@ -394,11 +504,13 @@ var generateAndAppendTemplate = function () {
   var editImgElement=document.createElement('img');
   editImgElement.src='assets/EditIcon-12px.svg';
   editButtonElement.appendChild(editImgElement);
+  editButtonElement.setAttribute('class','editButton');
   buttonGroupInnerElement.appendChild(editButtonElement);
 
   var slideShowImgElement=document.createElement('img');
   slideShowImgElement.src='assets/SlideshowIcon-12px.svg';
   playButtonElement.appendChild(slideShowImgElement);
+  playButtonElement.setAttribute('class','playButton')
   buttonGroupInnerElement.appendChild(playButtonElement);
 
   var deleteImgElement=document.createElement('img');

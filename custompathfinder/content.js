@@ -68,9 +68,7 @@
           stepUrl = window.location.href;
           var urlObject = new URL(stepUrl);
           var hostName = urlObject.hostname;
-          stepName = (stepName) ? stepName : 'Default StepName';
           stepElementPath = (stepElementPath) ? stepElementPath : defaultSelector;
-          stepDescription = (stepDescription) ? stepDescription : 'Default Step Description';
           var stepPayload = {
             stepName: stepName,
             stepEvent: stepEvent,
@@ -143,12 +141,18 @@
     var allDataForHostName = await fetchData(currentHostName);
     stepPayload.stepNumber='';
     stepPayload.stepId=getRandomId();
+    var passedStepName=stepPayload.stepName;
+    var passedStepDescription=stepPayload.stepDescription;
     //Filter our for items with activeTourId
     for(var i=0;i<allDataForHostName.length;i++){
       var currentTourObject=allDataForHostName[i];
       if(currentTourObject.tourId===activeTourId){
         var currentTourObjectSteps=currentTourObject.tourObj.steps;
         stepPayload.stepNumber=currentTourObjectSteps.length+1;
+        var defaultStepName='DefaultStepName';
+        var defaultStepDescription='DefaultStepDescription';
+        stepPayload.stepName=(passedStepName)?passedStepName:defaultStepName;
+        stepPayload.stepDescription=(passedStepDescription)?passedStepDescription:defaultStepDescription;
         currentTourObject.tourObj.steps=[...currentTourObjectSteps,stepPayload];
         allDataForHostName[i]=currentTourObject;
         chrome.storage.sync.set({
@@ -238,14 +242,26 @@
     var responseData=undefined;
     if(type==="NEW" && tourHostName){
       activeTourId=payload.tourId;
+      var passedTourName=payload.tourObj.tourName;
+      var passedTourDescription=payload.tourObj.tourDescription;
+      var defaultTourName='DefaultTourName';
+      var defaultTourDescription='DefaultTourDescription';
+      payload.tourObj.tourName=(passedTourName)?passedTourName:defaultTourName;
+      payload.tourObj.tourDescription=(passedTourDescription)?passedTourDescription:defaultTourDescription;
       //Filter out if there are any existing tour Elements with this newly passed tourId(can happen during upload flow)
       allDataForHostName=allDataForHostName.filter(function(item){
         return item.tourId!=activeTourId;
       });
-      responseData = [...allDataForHostName, payload];
+      allDataForHostName = [...allDataForHostName, payload];
       chrome.storage.sync.set({
-        [tourHostName]: JSON.stringify(responseData)
+        [tourHostName]: JSON.stringify(allDataForHostName)
       });
+      //Even if some other domain's payload is uploaded from current domains extension popup, we should be sending the current domains response only
+      var currentURL = window.location.href;
+      var urlObject = new URL(currentURL);
+      var currentHostName = urlObject.hostname;
+      allDataForHostName=await fetchData(currentHostName);
+      responseData=allDataForHostName;
     }else if(type==="GET" && tourHostName){
       responseData=allDataForHostName;
     }else if(type==="DELETETOUR" && tourHostName){
