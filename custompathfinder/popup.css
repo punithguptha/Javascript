@@ -125,13 +125,13 @@ body {
   }
 
   .StepText{
-    width: 60%;
     padding: 5px;
     align-self: center;
   }
 
   .buttonGroupInner{
     padding: 5px;
+    margin-left:auto;
   }
 
   .buttonGroupInner button{
