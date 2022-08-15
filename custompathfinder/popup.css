@@ -89,6 +89,34 @@ body {
     background-color: white;
   }
 
+  .tourEdit{
+    /*display to be made flex during runtime */
+    display: none;
+    flex-flow: column;
+    padding: 10px;
+    justify-content: center;
+    align-self: center;
+    align-items: center;
+    height: 100%;
+    border: 2px solid black;
+  }
+
+  .tourEdit label{
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    padding:10px;
+    font-weight: bold;
+  }
+  
+  .tourEdit .tourEditButtonsContainer{
+    padding-top:10px;
+  }
+
+  .tourEdit .tourEditButtonsContainer button{
+    margin-left:10px;
+  }
+
   #tourStepAnchor {
     height: 100%;
     width: 100%;

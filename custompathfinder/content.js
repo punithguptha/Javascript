@@ -264,6 +264,12 @@
       responseData=allDataForHostName;
     }else if(type==="GET" && tourHostName){
       responseData=allDataForHostName;
+    }else if(type==="GETTOUR" && tourHostName){
+      activeTourId=payload.tourId;
+      var passedTourId=payload.tourId;
+      responseData=allDataForHostName.filter(function(tour){
+        return tour.tourId===passedTourId;
+      })[0];
     }else if(type==="DELETETOUR" && tourHostName){
       var passedTourId=payload.tourId;
       //Filter out with the passed tourId and remove it from storage
@@ -310,6 +316,26 @@
           break;
         }
       }
+    } else if(type==="UPDATETOUR" && tourHostName){
+      activeTourId=payload.tourId;
+      passedTourId=payload.tourId;
+      var currentTourObject=allDataForHostName.filter(function(tour){
+        return tour.tourId===passedTourId;
+      })[0];
+      if(payload.tourObj.tourName){
+        currentTourObject.tourObj.tourName=payload.tourObj.tourName;
+      }
+      if(payload.tourObj.tourDescription){
+        currentTourObject.tourObj.tourDescription=payload.tourObj.tourDescription;
+      }
+      allDataForHostName=allDataForHostName.filter(function(tour){
+        return tour.tourId!==passedTourId;
+      });
+      allDataForHostName = [...allDataForHostName, currentTourObject];
+      responseData=allDataForHostName;
+      chrome.storage.sync.set({
+        [tourHostName]: JSON.stringify(allDataForHostName)
+      });
     }
     if (sendResponse) {
       sendResponse(responseData);

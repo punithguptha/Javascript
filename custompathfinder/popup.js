@@ -14,11 +14,16 @@ const TourFormNameSelector='.TourForm input';
 const TourFormDescriptionSelector='.TourForm textarea';
 const TourFormCancelSelector='.TourForm .cancelButton';
 const TourFormSaveSelector='.TourForm .saveButton';
+const TourEditButtonsSelector='.tourEditButtonsContainer';
 const AccordionListSelector='.AccordionList';
 const UploadTourButtonSelector='.UploadTour';
 const HiddenInputElementSelector='#hiddenFileInput';
 const LoaderDivElementSelector='.LoaderDiv';
 //Constants Section end
+
+//Global variable section start
+var allDataForHostName=undefined;
+//Global variable section end
 
 //Utils Section Start
 var getCurrentTab= async ()=>{
@@ -59,6 +64,62 @@ var generateAndStoreTourPayload=function(tourId,tour){
   tourElement.href = window.URL.createObjectURL(blob);
   tourElement.dataset.downloadurl = ["text/json", tourElement.download, tourElement.href].join(":");
 };
+
+var updateAllData=function(result){
+  allDataForHostName=(result)?result:allDataForHostName;
+};
+
+var populateEditTourFields=function(result){
+  updateAllData(result);
+  var tourId=result.tourId;
+  var selector="li[tourId='"+tourId+"']";
+  var tourContainer=document.querySelector(selector);
+
+  var tourEditElement=tourContainer.querySelector('.tourEdit');
+  if(!tourEditElement){
+    var tourEditTemplate=document.getElementById('tourEditTemplate');
+    tourEditElement=tourEditTemplate.content.firstElementChild.cloneNode(true);
+    tourContainer.appendChild(tourEditElement);
+  }
+  tourEditElement.style.display='flex';
+  var inputElement=tourEditElement.querySelector('input');
+  inputElement.value=result.tourObj.tourName;
+  var textAreaElement=tourEditElement.querySelector('textarea');
+  textAreaElement.style.minHeight='100px';
+  textAreaElement.value=result.tourObj.tourDescription;
+  var tourEditButtonsSelector=selector+TourEditButtonsSelector;
+  var cancelButton=tourEditElement.querySelector('.tourEditCancelButton');
+  var updateButton=tourEditElement.querySelector('.tourEditUpdateButton');
+  removeExistingEventListeners(tourEditButtonsSelector);
+  cancelButton.addEventListener('click',function(e){
+    tourEditElement.style.display='none';
+    tourContainer.querySelector('a').style.color='black';
+    tourContainer.querySelector('a').style.backgroundColor='white';
+  });
+  updateButton.addEventListener('click',async function(e){
+    var loaderDiv=document.querySelector(LoaderDivElementSelector);
+    loaderDiv.style.display='flex';
+    tourContainer.querySelector('a').style.color='black';
+    tourContainer.querySelector('a').style.backgroundColor='white';
+    var updatedTourName=inputElement.value;
+    var updatedTourDescription=textAreaElement.value;
+    const activeTab= await getCurrentTab();
+    var urlObject=new URL(activeTab.url);
+    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+    var tourHostName=urlObject.hostname;
+    chrome.tabs.sendMessage(activeTab.id,{
+      type:"UPDATETOUR",
+      payload:{
+        tourId:tourId,
+        tourObj:{
+          tourHostName:tourHostName,
+          tourName:updatedTourName,
+          tourDescription:updatedTourDescription
+        }
+      }
+    },updateAccordionList);
+  });
+};
 //Utils Section End
 
 var toggleElementFunction = function () {
@@ -68,6 +129,10 @@ var toggleElementFunction = function () {
     toggleElement.addEventListener('click',function (e) {
       e.preventDefault();
       var outerTourElement = e.target.parentElement.parentElement;
+      var tourEditElement=outerTourElement.querySelector('.tourEdit');
+      if(tourEditElement){
+        tourEditElement.style.display='none';
+      }
       var innerElementList = outerTourElement.querySelectorAll('.inner');
       if (innerElementList.length) {
         for (var i = 0; i < innerElementList.length; i++) {
@@ -87,7 +152,32 @@ var toggleElementFunction = function () {
   });
 };
 
-
+var createAndAppendTourEditElements=async function(tourContainer,tourId){
+  /*ToDo:
+    //Also display none the other inner elements during tour edit process.
+    //Also disable the toggle effect for the main tour element to show the child elements during a Edit process
+    //Remove the upper effects during a save or cancel and hide the tourEdit Element
+  */
+  var innerElementList = tourContainer.querySelectorAll('.inner');
+  tourContainer.querySelector('a').style.backgroundColor='black';
+  tourContainer.querySelector('a').style.color='white';
+  innerElementList.forEach(function(innerElement){
+    innerElement.style.display='none';
+  });
+  const activeTab= await getCurrentTab();
+  var urlObject=new URL(activeTab.url);
+  //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+  var tourHostName=urlObject.hostname;
+  chrome.tabs.sendMessage(activeTab.id,{
+    type:"GETTOUR",
+    payload:{
+      tourId:tourId,
+      tourObj:{
+        tourHostName:tourHostName
+      }
+    }
+  },populateEditTourFields);
+};
 
 var updateAccordionList=function(currentStorageData=[]){
   console.log("CurrentStorageData in popup.js updateAccordionList method below: ");
@@ -101,6 +191,7 @@ var updateAccordionList=function(currentStorageData=[]){
   for(var i=0;i<currentStorageData.length;i++){
       var tourId=currentStorageData[i].tourId;
       var liElement=document.createElement('li');
+      liElement.setAttribute('tourId',tourId);
       var tourElementCloned = tourElementTemplate.content.firstElementChild.cloneNode(true);
       tourElementCloned.querySelector('a').innerHTML=currentStorageData[i].tourObj.tourName;
       tourElementCloned.querySelector('a').setAttribute('title',currentStorageData[i].tourObj.tourDescription);
@@ -137,8 +228,8 @@ var updateAccordionList=function(currentStorageData=[]){
   initiateAllEventListeners();
 
   //If loader is still present then remove it and also clearing the input field element just to be sure..
-  var loaderDiv=document.querySelector('.LoaderDiv');
-  var hiddenInputFileElement=document.querySelector('#hiddenFileInput');
+  var loaderDiv=document.querySelector(LoaderDivElementSelector);
+  var hiddenInputFileElement=document.querySelector(HiddenInputElementSelector);
   if(loaderDiv.style.display==='flex'){loaderDiv.style.display='none';}
   // hiddenInputFileElement.value='';
 };
@@ -262,7 +353,15 @@ var initiateAllEventListeners=async function(){
     removeExistingEventListeners(TourEditButtonSelector);
     var tourEditButtons=document.querySelectorAll(TourEditButtonSelector);
     tourEditButtons.forEach(function(tourEditButton){
-      tourEditButton.addEventListener('click',function(e){
+      tourEditButton.addEventListener('click',async function(e){
+        var parentElement=e.target.parentElement;
+        if(e.target.nodeName==='IMG'){
+          parentElement=parentElement.parentElement;
+        }
+        var currentTourId=parentElement.getAttribute('tourId');
+        var tourElement=parentElement.parentElement;
+        var tourContainer=tourElement.parentElement;
+        await createAndAppendTourEditElements(tourContainer,currentTourId);
         console.log("Inside Edit Tour Event Handler");
       });
     });
@@ -524,6 +623,46 @@ var generateAndAppendTemplate = function () {
   listElement.appendChild(stepElement);
   stepElementTemplate.content.appendChild(listElement);
   document.body.appendChild(stepElementTemplate);
+
+  //TourEdit  Template Start
+    var tourEditTemplate=document.createElement('template');
+    tourEditTemplate.setAttribute('id','tourEditTemplate');
+    var tourEditElement=document.createElement('div');
+    tourEditElement.setAttribute('class','tourEdit');
+    var tourNameLabel=document.createElement('label');
+    tourNameLabel.innerText='TourName:';
+    var breakElement=document.createElement('br');
+    tourNameLabel.appendChild(breakElement);
+    var tourNameInput=document.createElement('input');
+    tourNameInput.setAttribute('maxlength','50');
+    tourNameLabel.appendChild(tourNameInput);
+    tourEditElement.appendChild(tourNameLabel);
+    var tourDescriptionLabel=document.createElement('label');
+    tourDescriptionLabel.innerText='TourDescription:';
+    tourDescriptionLabel.appendChild(breakElement.cloneNode(true));
+    var tourDescriptionTextArea=document.createElement('textarea');
+    tourDescriptionTextArea.setAttribute('maxlength','100');
+    tourDescriptionLabel.appendChild(tourDescriptionTextArea);
+    tourEditElement.appendChild(tourDescriptionLabel);
+    var tourEditButtonsContainer=document.createElement('div');
+    tourEditButtonsContainer.setAttribute('class','tourEditButtonsContainer');
+    var tourEditUpdateButton=document.createElement('button');
+    tourEditUpdateButton.textContent='Update';
+    tourEditUpdateButton.setAttribute('class','tourEditUpdateButton');
+    var tourEditCancelButton=document.createElement('button');
+    tourEditCancelButton.textContent='Cancel';
+    tourEditCancelButton.setAttribute('class','tourEditCancelButton');
+    tourEditButtonsContainer.appendChild(tourEditCancelButton);
+    tourEditButtonsContainer.appendChild(tourEditUpdateButton);
+    tourEditElement.appendChild(tourEditButtonsContainer);
+    tourEditTemplate.content.appendChild(tourEditElement);
+    document.body.appendChild(tourEditTemplate);
+  //TourEdit Template End
+
+  //StepEdit Template Start
+
+  //StepEdit Template End
+
 };
 
 var fetchAndShow= async function(){
