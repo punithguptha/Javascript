@@ -70,7 +70,6 @@ var updateAllData=function(result){
 };
 
 var populateEditTourFields=function(result){
-  updateAllData(result);
   var tourId=result.tourId;
   var selector="li[tourId='"+tourId+"']";
   var tourContainer=document.querySelector(selector);
@@ -120,6 +119,10 @@ var populateEditTourFields=function(result){
     },updateAccordionList);
   });
 };
+
+var populateEditStepFields=function(result){
+  
+};
 //Utils Section End
 
 var toggleElementFunction = function () {
@@ -153,11 +156,6 @@ var toggleElementFunction = function () {
 };
 
 var createAndAppendTourEditElements=async function(tourContainer,tourId){
-  /*ToDo:
-    //Also display none the other inner elements during tour edit process.
-    //Also disable the toggle effect for the main tour element to show the child elements during a Edit process
-    //Remove the upper effects during a save or cancel and hide the tourEdit Element
-  */
   var innerElementList = tourContainer.querySelectorAll('.inner');
   tourContainer.querySelector('a').style.backgroundColor='black';
   tourContainer.querySelector('a').style.color='white';
@@ -179,7 +177,32 @@ var createAndAppendTourEditElements=async function(tourContainer,tourId){
   },populateEditTourFields);
 };
 
+var createAndAppendStepEditElements=async function(stepContainer,tourId,stepId){
+  /*ToDo:
+    //Also display none the other inner elements during tour edit process.
+    //Also disable the toggle effect for the main tour element to show the child elements during a Edit process
+    //Remove the upper effects during a save or cancel and hide the tourEdit Element
+  */
+    const activeTab= await getCurrentTab();
+    var urlObject=new URL(activeTab.url);
+    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+    var tourHostName=urlObject.hostname;
+    chrome.tabs.sendMessage(activeTab.id,{
+      type:"GETSTEP",
+      payload:{
+        tourId:tourId,
+        tourObj:{
+          tourHostName:tourHostName,
+          steps:{
+            stepId:stepId
+          }
+        }
+      }
+    },populateEditStepFields);
+};
+
 var updateAccordionList=function(currentStorageData=[]){
+  if(currentStorageData.length){updateAllData(currentStorageData);}
   console.log("CurrentStorageData in popup.js updateAccordionList method below: ");
   console.log(currentStorageData.length);
   console.log(currentStorageData);
@@ -207,6 +230,8 @@ var updateAccordionList=function(currentStorageData=[]){
         var stepElementCloned=stepElementTemplate.content.firstElementChild.cloneNode(true);
         stepElementCloned.querySelector('.StepText').innerHTML=steps[j].stepName;
         stepElementCloned.querySelector('.StepElement').setAttribute('title',steps[j].stepDescription);
+        stepElementCloned.setAttribute('stepId',currStepId);
+        stepElementCloned.setAttribute('parentTourId',tourId);
         stepElementCloned.querySelector('.buttonGroupInner').setAttribute('stepId',currStepId);
         stepElementCloned.querySelector('.buttonGroupInner').setAttribute('parentTourId',tourId);
         ulElement.appendChild(stepElementCloned);
@@ -478,9 +503,18 @@ var initiateAllEventListeners=async function(){
     removeExistingEventListeners(StepEditButtonSelector);
     var stepEditButtons=document.querySelectorAll(StepEditButtonSelector);
     stepEditButtons.forEach(function(stepEditButton){
-      stepEditButton.addEventListener('click',function(e){
-        console.log('Inside Edit Step Event Handler');
-      });
+      stepEditButton.addEventListener('click',async function(e){
+          var parentElement=e.target.parentElement;
+          if(e.target.nodeName==='IMG'){
+            parentElement=parentElement.parentElement;
+          }
+          var currentTourId=parentElement.getAttribute('parentTourId');
+          var currentStepId=parentElement.getAttribute('stepId');
+          var stepElement=parentElement.parentElement;
+          var stepContainer=stepElement.parentElement;
+          await createAndAppendStepEditElements(stepContainer,currentTourId,currentStepId);
+          console.log("Inside Edit Step Event Handler");
+        });
     });
     //EditButton EventListener End
 
@@ -660,7 +694,50 @@ var generateAndAppendTemplate = function () {
   //TourEdit Template End
 
   //StepEdit Template Start
+  var stepEditTemplate=document.createElement('template');
+  stepEditTemplate.setAttribute('id','stepEditTemplate');
+  var stepEditElement=document.createElement('div');
+  stepEditElement.setAttribute('class','stepEdit');
+  var breakElement=document.createElement('br');
+  var stepNameLabel=document.createElement('label');
+  stepNameLabel.innerText='StepName: ';
+  stepNameLabel.appendChild(breakElement.cloneNode(true));
+  var stepNameInput=document.createElement('input');
+  stepNameLabel.appendChild(stepNameInput);
+  stepEditElement.appendChild(stepNameLabel);
 
+  var stepDescriptionLabel=document.createElement('label');
+  stepDescriptionLabel.innerText='StepDescription:';
+  stepDescriptionLabel.appendChild(breakElement.cloneNode(true));
+  var stepDescriptionTextArea=document.createElement('textarea');
+  stepDescriptionLabel.appendChild(stepDescriptionTextArea);
+  stepEditElement.appendChild(stepDescriptionLabel);
+
+  var stepSelectorLabel=document.createElement('label');
+  stepSelectorLabel.innerText='StepElement Selector:';
+  stepSelectorLabel.appendChild(breakElement.cloneNode(true));
+  var stepSelectorTextArea=document.createElement('textArea');
+  stepSelectorLabel.appendChild(stepSelectorTextArea);
+  stepEditElement.appendChild(stepSelectorLabel);
+
+  var stepEventLabel=document.createElement('label');
+  stepEventLabel.innerText='StepEvent:';
+  stepEventLabel.appendChild(breakElement.cloneNode());
+  var stepEventInput=document.createElement('input');
+  stepEventLabel.appendChild(stepEventInput);
+  stepEditElement.appendChild(stepEventLabel);
+  
+  var stepEditButtonsContainer=document.createElement('div');
+  var stepEditUpdateButton=document.createElement('button');
+  stepEditUpdateButton.textContent='Update';
+  var stepEditCancelButton=document.createElement('button');
+  stepEditCancelButton.textContent='Cancel';
+  stepEditButtonsContainer.appendChild(stepEditCancelButton);
+  stepEditButtonsContainer.appendChild(stepEditUpdateButton);
+  stepEditElement.appendChild(stepEditButtonsContainer);
+
+  stepEditTemplate.content.appendChild(stepEditElement);
+  document.body.appendChild(stepEditTemplate);
   //StepEdit Template End
 
 };
