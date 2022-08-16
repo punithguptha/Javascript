@@ -151,6 +151,9 @@ var populateEditStepFields=function(result){
   var stepEditCancelButton=stepEditElement.querySelector('.stepEditCancelButton');
   var stepEditUpdateButton=stepEditElement.querySelector('.stepEditUpdateButton');
   stepEditCancelButton.addEventListener('click',function(e){
+    var stepElement=stepContainer.querySelector('.StepElement');
+    stepElement.style.backgroundColor='white';
+    stepElement.style.color='black';
     stepEditElement.style.display='none';
   });
   stepEditUpdateButton.addEventListener('click', async function(e){
@@ -239,11 +242,9 @@ var createAndAppendTourEditElements=async function(tourContainer,tourId){
 };
 
 var createAndAppendStepEditElements=async function(stepContainer,tourId,stepId){
-  /*ToDo:
-    //Also display none the other inner elements during tour edit process.
-    //Also disable the toggle effect for the main tour element to show the child elements during a Edit process
-    //Remove the upper effects during a save or cancel and hide the tourEdit Element
-  */
+    var stepElement=stepContainer.querySelector('.StepElement');
+    stepElement.style.backgroundColor='lightseagreen';
+    stepElement.style.color='white';
     const activeTab= await getCurrentTab();
     var urlObject=new URL(activeTab.url);
     //ToDo: To store this in hashed manner later. This will be the key of our tourObj
@@ -767,6 +768,7 @@ var generateAndAppendTemplate = function () {
   stepNameLabel.setAttribute('class','stepNameLabel');
   stepNameLabel.appendChild(breakElement.cloneNode(true));
   var stepNameInput=document.createElement('input');
+  stepNameInput.setAttribute('maxlength','50');
   stepNameLabel.appendChild(stepNameInput);
   stepEditElement.appendChild(stepNameLabel);
 
@@ -775,6 +777,7 @@ var generateAndAppendTemplate = function () {
   stepDescriptionLabel.setAttribute('class','stepDescriptionLabel');
   stepDescriptionLabel.appendChild(breakElement.cloneNode(true));
   var stepDescriptionTextArea=document.createElement('textarea');
+  stepDescriptionTextArea.setAttribute('maxlength','100');
   stepDescriptionLabel.appendChild(stepDescriptionTextArea);
   stepEditElement.appendChild(stepDescriptionLabel);
 

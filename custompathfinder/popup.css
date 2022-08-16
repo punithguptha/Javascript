@@ -165,10 +165,23 @@ body {
     display: flex;
     flex-flow: column;
     width: 100%;
-    font-weight: bold;
+    font-weight: normal;
     color: lightseagreen;
+    padding-bottom: 10px;
   }
-  
+
+  .stepEdit .stepDescriptionLabel textarea{
+    min-height: 80px;
+  }
+
+  .stepEdit .stepSelectorLabel textarea{
+    min-height: 50px;
+  }
+
+  .stepEdit .stepEditButtonsContainer button{
+    margin-left: 10px;
+  }
+
   .StepText{
     padding: 5px;
     align-self: center;
