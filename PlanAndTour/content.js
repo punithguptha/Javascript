@@ -131,7 +131,7 @@
 
   var fetchData = function (currentHostName) {
     return new Promise((resolve, reject) => {
-      chrome.storage.sync.get([currentHostName], (obj) => {
+      chrome.storage.sync.get([currentHostName], function(obj) {
         resolve(obj[currentHostName] ? JSON.parse(obj[currentHostName]) : []);
       })
     });

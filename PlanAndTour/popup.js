@@ -815,7 +815,11 @@ var generateAndAppendTemplate = function () {
 
 };
 
-var fetchAndShow= async function(){
+document.addEventListener('DOMContentLoaded', async function () {
+  // get the cta button element
+  generateAndAppendTemplate();
+
+  //Fetch and show the data during startload
   const activeTab= await getCurrentTab();
   var urlObject=new URL(activeTab.url);
   //ToDo: To store this in hashed manner later. This will be the key of our tourObj
@@ -828,14 +832,6 @@ var fetchAndShow= async function(){
       }
     }
   },updateAccordionList);
-};
-
-document.addEventListener('DOMContentLoaded', function () {
-  // get the cta button element
-  generateAndAppendTemplate();
-
-  //Fetch and show the data during startload
-  fetchAndShow();
 
   // handle cta button click event
   // to be able to start inspection
