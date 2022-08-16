@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PlanAndTour",
-  "description": "One stop solution to create/download/share guided walkthroughs",
+  "description": "Your one stop solution for guided walkthroughs",
   "version": "1.0",
   "host_permissions": ["<all_urls>"],
   "action": {
