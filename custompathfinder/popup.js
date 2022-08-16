@@ -15,6 +15,7 @@ const TourFormDescriptionSelector='.TourForm textarea';
 const TourFormCancelSelector='.TourForm .cancelButton';
 const TourFormSaveSelector='.TourForm .saveButton';
 const TourEditButtonsSelector='.tourEditButtonsContainer';
+const StepEditButtonsSelector='.stepEditButtonsContainer';
 const AccordionListSelector='.AccordionList';
 const UploadTourButtonSelector='.UploadTour';
 const HiddenInputElementSelector='#hiddenFileInput';
@@ -86,10 +87,11 @@ var populateEditTourFields=function(result){
   var textAreaElement=tourEditElement.querySelector('textarea');
   textAreaElement.style.minHeight='100px';
   textAreaElement.value=result.tourObj.tourDescription;
-  var tourEditButtonsSelector=selector+TourEditButtonsSelector;
+  var tourEditButtonsSelector=selector+" "+TourEditButtonsSelector;
+  console.log($(tourEditButtonsSelector));
+  removeExistingEventListeners(tourEditButtonsSelector);
   var cancelButton=tourEditElement.querySelector('.tourEditCancelButton');
   var updateButton=tourEditElement.querySelector('.tourEditUpdateButton');
-  removeExistingEventListeners(tourEditButtonsSelector);
   cancelButton.addEventListener('click',function(e){
     tourEditElement.style.display='none';
     tourContainer.querySelector('a').style.color='black';
@@ -121,7 +123,66 @@ var populateEditTourFields=function(result){
 };
 
 var populateEditStepFields=function(result){
+  var stepId=result.stepId;
+  var selector='li[stepId="'+stepId+'"]';
+  var stepContainer=document.querySelector(selector);
+  var tourId=stepContainer.getAttribute('parentTourId');
+  var stepEditElement=stepContainer.querySelector('.stepEdit');
+  if(!stepEditElement){
+    var stepEditTemplate=document.getElementById('stepEditTemplate');
+    stepEditElement=stepEditTemplate.content.firstElementChild.cloneNode(true);
+    stepContainer.appendChild(stepEditElement);
+  }
+  stepEditElement.style.display='flex';
+  //populate all the stepEdit Fields which we got from result
+  var stepNameInputElement=stepEditElement.querySelector('.stepNameLabel input');
+  var stepDescriptionTextAreaElement=stepEditElement.querySelector('.stepDescriptionLabel textarea');
+  var stepSelectorTextAreaElement=stepEditElement.querySelector('.stepSelectorLabel textarea');
+  var stepEventInputElement=stepEditElement.querySelector('.stepEventLabel input');
   
+  stepNameInputElement.value=result.stepName;
+  stepDescriptionTextAreaElement.value=result.stepDescription;
+  stepSelectorTextAreaElement.value=result.stepElementPath;
+  stepEventInputElement.value=result.stepEvent;
+
+  //Add eventListeners for update and cancel stepEdit buttons
+  var stepEditButtonsSelector=selector+" "+StepEditButtonsSelector;
+  removeExistingEventListeners(stepEditButtonsSelector);
+  var stepEditCancelButton=stepEditElement.querySelector('.stepEditCancelButton');
+  var stepEditUpdateButton=stepEditElement.querySelector('.stepEditUpdateButton');
+  stepEditCancelButton.addEventListener('click',function(e){
+    stepEditElement.style.display='none';
+  });
+  stepEditUpdateButton.addEventListener('click', async function(e){
+    var loaderDiv=document.querySelector(LoaderDivElementSelector);
+    loaderDiv.style.display='flex';
+    var updatedStepName=stepNameInputElement.value;
+    var updatedStepDescription=stepDescriptionTextAreaElement.value;
+    var updatedStepEvent=stepEventInputElement.value;
+    var updatedStepSelector=stepSelectorTextAreaElement.value;
+    const activeTab= await getCurrentTab();
+    var urlObject=new URL(activeTab.url);
+    //ToDo: To store this in hashed manner later. This will be the key of our tourObj
+    var tourHostName=urlObject.hostname;
+    chrome.tabs.sendMessage(activeTab.id,{
+      type:"UPDATESTEP",
+      payload:{
+        tourId:tourId,
+        tourObj:{
+          tourHostName:tourHostName,
+          steps:[
+            {
+              stepId:stepId,
+              stepName:updatedStepName,
+              stepDescription:updatedStepDescription,
+              stepElementPath:updatedStepSelector,
+              stepEvent:updatedStepEvent
+            }
+          ]
+        }
+      }
+    },updateAccordionList);
+  });
 };
 //Utils Section End
 
@@ -193,9 +254,11 @@ var createAndAppendStepEditElements=async function(stepContainer,tourId,stepId){
         tourId:tourId,
         tourObj:{
           tourHostName:tourHostName,
-          steps:{
-            stepId:stepId
-          }
+          steps:[
+            {
+              stepId:stepId
+            }
+          ]
         }
       }
     },populateEditStepFields);
@@ -701,6 +764,7 @@ var generateAndAppendTemplate = function () {
   var breakElement=document.createElement('br');
   var stepNameLabel=document.createElement('label');
   stepNameLabel.innerText='StepName: ';
+  stepNameLabel.setAttribute('class','stepNameLabel');
   stepNameLabel.appendChild(breakElement.cloneNode(true));
   var stepNameInput=document.createElement('input');
   stepNameLabel.appendChild(stepNameInput);
@@ -708,6 +772,7 @@ var generateAndAppendTemplate = function () {
 
   var stepDescriptionLabel=document.createElement('label');
   stepDescriptionLabel.innerText='StepDescription:';
+  stepDescriptionLabel.setAttribute('class','stepDescriptionLabel');
   stepDescriptionLabel.appendChild(breakElement.cloneNode(true));
   var stepDescriptionTextArea=document.createElement('textarea');
   stepDescriptionLabel.appendChild(stepDescriptionTextArea);
@@ -715,23 +780,28 @@ var generateAndAppendTemplate = function () {
 
   var stepSelectorLabel=document.createElement('label');
   stepSelectorLabel.innerText='StepElement Selector:';
+  stepSelectorLabel.setAttribute('class','stepSelectorLabel');
   stepSelectorLabel.appendChild(breakElement.cloneNode(true));
-  var stepSelectorTextArea=document.createElement('textArea');
+  var stepSelectorTextArea=document.createElement('textarea');
   stepSelectorLabel.appendChild(stepSelectorTextArea);
   stepEditElement.appendChild(stepSelectorLabel);
 
   var stepEventLabel=document.createElement('label');
   stepEventLabel.innerText='StepEvent:';
+  stepEventLabel.setAttribute('class','stepEventLabel');
   stepEventLabel.appendChild(breakElement.cloneNode());
   var stepEventInput=document.createElement('input');
   stepEventLabel.appendChild(stepEventInput);
   stepEditElement.appendChild(stepEventLabel);
   
   var stepEditButtonsContainer=document.createElement('div');
+  stepEditButtonsContainer.setAttribute('class','stepEditButtonsContainer');
   var stepEditUpdateButton=document.createElement('button');
   stepEditUpdateButton.textContent='Update';
+  stepEditUpdateButton.setAttribute('class','stepEditUpdateButton');
   var stepEditCancelButton=document.createElement('button');
   stepEditCancelButton.textContent='Cancel';
+  stepEditCancelButton.setAttribute('class','stepEditCancelButton');
   stepEditButtonsContainer.appendChild(stepEditCancelButton);
   stepEditButtonsContainer.appendChild(stepEditUpdateButton);
   stepEditElement.appendChild(stepEditButtonsContainer);

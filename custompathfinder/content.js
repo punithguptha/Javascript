@@ -270,6 +270,17 @@
       responseData=allDataForHostName.filter(function(tour){
         return tour.tourId===passedTourId;
       })[0];
+    }else if(type==="GETSTEP"&& tourHostName){
+      activeTourId=payload.tourId;
+      var passedTourId=payload.tourId;
+      var passedStepId=payload.tourObj.steps[0].stepId;
+      var filteredTourObj=allDataForHostName.filter(function(tour){
+        return tour.tourId===passedTourId;
+      })[0];
+      var filteredStepObj=filteredTourObj.tourObj.steps.filter(function(step){
+        return step.stepId===passedStepId;
+      })[0];
+      responseData=filteredStepObj;
     }else if(type==="DELETETOUR" && tourHostName){
       var passedTourId=payload.tourId;
       //Filter out with the passed tourId and remove it from storage
@@ -328,14 +339,60 @@
       if(payload.tourObj.tourDescription){
         currentTourObject.tourObj.tourDescription=payload.tourObj.tourDescription;
       }
-      allDataForHostName=allDataForHostName.filter(function(tour){
-        return tour.tourId!==passedTourId;
+      var currentTourIndex=allDataForHostName.findIndex(function(tour){
+        if(tour.tourId===passedTourId){
+          return true;
+        }
+        return false;
       });
-      allDataForHostName = [...allDataForHostName, currentTourObject];
+      allDataForHostName[currentTourIndex]=currentTourObject;
       responseData=allDataForHostName;
       chrome.storage.sync.set({
         [tourHostName]: JSON.stringify(allDataForHostName)
       });
+    }else if(type==="UPDATESTEP" && tourHostName){
+      activeTourId=payload.tourId;
+      passedTourId=payload.tourId;
+      var passedStep=payload.tourObj.steps[0];
+      var passedStepId=passedStep.stepId;
+      var currentTourObject=allDataForHostName.filter(function(tour){
+        return tour.tourId===passedTourId;
+      })[0];
+      var currentStepObj=currentTourObject.tourObj.steps.filter(function(step){
+        return step.stepId===passedStepId;
+      })[0];
+      var currentTourIndex=allDataForHostName.findIndex(function(tour){
+        if(tour.tourId===passedTourId){
+          return true;
+        }
+        return false;
+      });
+      var currentStepIndex=currentTourObject.tourObj.steps.findIndex(function(step){
+        if(step.stepId===passedStepId){
+          return true;
+        }
+        return false;
+      });
+
+      //Updating values of step with passed ones
+      if(passedStep.stepName){
+        currentStepObj.stepName=passedStep.stepName;
+      }
+      if(passedStep.stepDescription){
+        currentStepObj.stepDescription=passedStep.stepDescription;
+      }
+      if(passedStep.stepElementPath){
+        currentStepObj.stepElementPath=passedStep.stepElementPath;
+      }
+      if(passedStep.stepEvent){
+        currentStepObj.stepEvent=passedStep.stepEvent;
+      }
+      currentTourObject.tourObj.steps[currentStepIndex]=currentStepObj;
+      allDataForHostName[currentTourIndex]=currentTourObject;
+      chrome.storage.sync.set({
+        [tourHostName]: JSON.stringify(allDataForHostName)
+      });
+      responseData=allDataForHostName;
     }
     if (sendResponse) {
       sendResponse(responseData);

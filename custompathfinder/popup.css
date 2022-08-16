@@ -152,6 +152,23 @@ body {
     justify-content: center;
   }
 
+  .stepEdit{
+    display: none;
+    flex-flow: column;
+    align-items: center;
+    border: 2px lightseagreen solid;
+    padding: 10px;
+    height: 100%;
+  }
+
+  .stepEdit label{
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    font-weight: bold;
+    color: lightseagreen;
+  }
+  
   .StepText{
     padding: 5px;
     align-self: center;
