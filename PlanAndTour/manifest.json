@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Path Finder",
-  "description": "to find out an html element unique css selector",
+  "name": "PlanAndTour",
+  "description": "One stop solution to create/download/share guided walkthroughs",
   "version": "1.0",
   "host_permissions": ["<all_urls>"],
   "action": {
