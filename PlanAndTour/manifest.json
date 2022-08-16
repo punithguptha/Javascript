@@ -7,7 +7,7 @@
   "action": {
     "default_icon": "assets/icon.png",
     "default_popup": "popup.html",
-    "default_title": "Custom Path Finder"
+    "default_title": "PlanAndTour"
   },
   "content_scripts": [
     {
