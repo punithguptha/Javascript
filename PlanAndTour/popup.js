@@ -152,7 +152,7 @@ var populateEditStepFields=function(result){
   var stepEditUpdateButton=stepEditElement.querySelector('.stepEditUpdateButton');
   stepEditCancelButton.addEventListener('click',function(e){
     var stepElement=stepContainer.querySelector('.StepElement');
-    stepElement.style.backgroundColor='white';
+    stepElement.style.backgroundColor='inherit';
     stepElement.style.color='black';
     stepEditElement.style.display='none';
   });
