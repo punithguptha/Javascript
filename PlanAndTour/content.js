@@ -187,6 +187,7 @@
       }
     });
     for(var i=0;i<steps.length;i++){
+      let intervalId;
       var currentStep=steps[i];
       var stepOptions = {
         text: currentStep.stepDescription,
@@ -206,15 +207,48 @@
             action:tour.next
           }
         ],
+        beforeShowPromise: function(){
+          return new Promise(function(resolve,reject){
+            var count=0;
+            var max_count=10;
+            var currentStepOptions=this.options;
+            //Try to find the element till max attempts and then reject the promise with some error
+            intervalId=setInterval(function(){
+              console.log("Current count inside beforeShowPromise: "+count);
+              console.log(currentStepOptions);
+              if(count!==max_count && $(this.Shepherd.activeTour.currentStep.options.attachTo.element)[0]){
+                resolve($(this.Shepherd.activeTour.currentStep.options.attachTo.element));
+              }else if(count===max_count){
+                console.log("Max number of attempts reached in finding the element!!!");
+                resolve("Max number of attempts reached in finding the element!!!");
+              }
+              count=count+1;
+            },500,count,currentStepOptions);
+          });
+        },
         when:{
           show:function(){
-            var selector=document.querySelector(this.options.attachTo.element);
-            selector.addEventListener('click', () => {
-              setTimeout(function(){
+            clearInterval(intervalId);
+            var selectorElement=$(this.options.attachTo.element);
+            if(!selectorElement[0]){
+              console.log("Current selector is not working..So ending the tour!");
+              tour.complete();
+            }else if(this.options.eventType==='click'){
+              selectorElement.off('click').on('click',function(){
                 tour.next();
-              }, 500);
-           });
+              });
+            }
           }
+        },
+        showOn:function(){
+          //For now we are returning true in both cases to observe the logs
+          var selectorElement=this.attachTo.element;
+          if($(selectorElement)[0]){
+            console.log("Element found inside showOn...");
+          }else{
+            console.log("Element not found inside showOn...");
+          }
+          return true;
         }
       };
       if(currentStep.stepEvent && currentStep.stepEvent==='click'){
