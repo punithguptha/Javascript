@@ -171,9 +171,16 @@
     });
   };
 
-  var convertPayloadToShepherdAndRun=function(currentTourObject){
+  var convertPayloadToShepherdAndRun=function(currentTourObject,playFrom){
     destroyShepherdInstances();
     var steps=currentTourObject.tourObj.steps;
+    if(playFrom){
+      var stepIndexToPlayFrom=steps.findIndex(function(step){
+        if(step.stepId===playFrom){return true;}
+        return false;
+      });
+      steps=steps.slice(stepIndexToPlayFrom,steps.length);
+    }
     const tour = new Shepherd.Tour({
       tourName:currentTourObject.tourObj.tourName,
       useModalOverlay: true,
@@ -344,10 +351,11 @@
     }else if(type==="PRESENT" && tourHostName){
       activeTourId=payload.tourId;
       passedTourId=payload.tourId;
+      var playFrom=payload?.tourObj?.playFrom;//If not sent it will take value as undefined
       for(var i=0;i<allDataForHostName.length;i++){
         var currentTourObject=allDataForHostName[i];
         if(currentTourObject.tourId===passedTourId){
-          convertPayloadToShepherdAndRun(currentTourObject);
+          convertPayloadToShepherdAndRun(currentTourObject,playFrom);
           break;
         }
       }

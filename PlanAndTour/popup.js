@@ -384,8 +384,6 @@ var initiateAllEventListeners=async function(){
           "tourDescription":tourDescription,
           "tourUrl":activeTab.url,
           "tourHostName":tourHostName,
-          "tenantId":'7586',
-          "tenantName":'shubhqa',
           'steps':[]
         }
       };
@@ -586,8 +584,28 @@ var initiateAllEventListeners=async function(){
     removeExistingEventListeners(StepPresentButtonSelector);
     var stepPresentButtons=document.querySelectorAll(StepPresentButtonSelector);
     stepPresentButtons.forEach(function(stepPresentButton){
-      stepPresentButton.addEventListener('click',function(e){
-        console.log("Inside Present Step Event Handler");
+      stepPresentButton.addEventListener('click',async function(e){
+          var parentElement=e.target.parentElement;
+          if(e.target.nodeName==='IMG'){
+            parentElement=parentElement.parentElement;
+          }
+          var currentTourId=parentElement.getAttribute('parentTourId');
+          var currentStepId=parentElement.getAttribute('stepId');
+          const activeTab=await getCurrentTab();
+          var urlObject=new URL(activeTab.url);
+          var tourHostName=urlObject.hostname;
+          var payload={
+            tourId:currentTourId,
+            tourObj:{
+              tourHostName:tourHostName,
+              playFrom:currentStepId
+            }
+          }
+          chrome.tabs.sendMessage(activeTab.id,{
+            type:"PRESENT",
+            payload:payload
+          });
+          window.close();
       });
     });
     //PlayButton EventListener End
