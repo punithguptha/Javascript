@@ -239,16 +239,6 @@
               });
             }
           }
-        },
-        showOn:function(){
-          //For now we are returning true in both cases to observe the logs
-          var selectorElement=this.attachTo.element;
-          if($(selectorElement)[0]){
-            console.log("Element found inside showOn...");
-          }else{
-            console.log("Element not found inside showOn...");
-          }
-          return true;
         }
       };
       if(currentStep.stepEvent && currentStep.stepEvent==='click'){

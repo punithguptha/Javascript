@@ -739,7 +739,7 @@ var generateAndAppendTemplate = function () {
     tourDescriptionLabel.innerText='TourDescription:';
     tourDescriptionLabel.appendChild(breakElement.cloneNode(true));
     var tourDescriptionTextArea=document.createElement('textarea');
-    tourDescriptionTextArea.setAttribute('maxlength','100');
+    tourDescriptionTextArea.setAttribute('maxlength','500');
     tourDescriptionLabel.appendChild(tourDescriptionTextArea);
     tourEditElement.appendChild(tourDescriptionLabel);
     var tourEditButtonsContainer=document.createElement('div');
