@@ -669,18 +669,21 @@ var generateAndAppendTemplate = function () {
   editImgElement.src='assets/EditIcon-16px.svg';
   editButtonElement0.appendChild(editImgElement);
   editButtonElement0.setAttribute('class','editButton');
+  editButtonElement0.setAttribute('title','Edit the Tour Details');
   buttonGroup.appendChild(editButtonElement0);
   
   var addImgElement=document.createElement('img');
   addImgElement.src='assets/AddIcon-16px.svg';
   addButtonElement0.appendChild(addImgElement);
   addButtonElement0.setAttribute('class','addButton');
+  addButtonElement0.setAttribute('title','Add new Step to the Tour');
   buttonGroup.appendChild(addButtonElement0);
   
   var slideShowImgElement=document.createElement('img');
   slideShowImgElement.src='assets/SlideshowIcon-16px.svg';
   playButtonElement0.appendChild(slideShowImgElement);
   playButtonElement0.setAttribute('class','playButton');
+  playButtonElement0.setAttribute('title','Play the Tour');
   buttonGroup.appendChild(playButtonElement0);
   
   var downloadImgElement=document.createElement('img');
@@ -688,6 +691,7 @@ var generateAndAppendTemplate = function () {
   downloadButtonElement0.appendChild(downloadImgElement);
   downloadButtonElement0.setAttribute('title','Download Tour');
   downloadButtonElement0.setAttribute('class','downloadTourButton');
+  downloadButtonElement0.setAttribute('title','Download the Tour');
   downloadButtonElement0.appendChild(downloadButtonAnchorElement0);
   buttonGroup.appendChild(downloadButtonElement0);
 
@@ -695,6 +699,7 @@ var generateAndAppendTemplate = function () {
   deleteImgElement.src='assets/DeleteIcon-16px.svg';
   deleteButtonElement0.appendChild(deleteImgElement);
   deleteButtonElement0.setAttribute('class','deleteButton');
+  deleteButtonElement0.setAttribute('title','Delete the Tour');
   buttonGroup.appendChild(deleteButtonElement0);
 
   tourElementDiv.appendChild(anchorElement);
@@ -720,18 +725,21 @@ var generateAndAppendTemplate = function () {
   editImgElement.src='assets/EditIcon-12px.svg';
   editButtonElement.appendChild(editImgElement);
   editButtonElement.setAttribute('class','editButton');
+  editButtonElement.setAttribute('title','Edit the Step Details');
   buttonGroupInnerElement.appendChild(editButtonElement);
 
   var slideShowImgElement=document.createElement('img');
   slideShowImgElement.src='assets/SlideshowIcon-12px.svg';
   playButtonElement.appendChild(slideShowImgElement);
-  playButtonElement.setAttribute('class','playButton')
+  playButtonElement.setAttribute('class','playButton');
+  playButtonElement.setAttribute('title','Play Tour from this Step');
   buttonGroupInnerElement.appendChild(playButtonElement);
 
   var deleteImgElement=document.createElement('img');
   deleteImgElement.src='assets/DeleteIcon-12px.svg';
   deleteButtonElement.appendChild(deleteImgElement);
   deleteButtonElement.setAttribute('class','deleteButton');
+  deleteButtonElement.setAttribute('title','Delete the Step');
   buttonGroupInnerElement.appendChild(deleteButtonElement);
 
   stepElement.appendChild(stepTextElement);
