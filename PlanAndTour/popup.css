@@ -207,13 +207,13 @@ body {
   }
 
   a.toggle:hover{
-        background-color: black;
-        color: white;
+        background-color: black !important;
+        color: white !important;
   }
 
   .StepElement:hover{
-    background-color: lightseagreen;
-    color: white;
+    background-color: lightseagreen !important;
+    color: white !important;
   }
 
   i {
