@@ -24,6 +24,9 @@ const LoaderDivElementSelector='.LoaderDiv';
 
 //Global variable section start
 var allDataForHostName=undefined;
+var allStepElements={};
+var dragStartIndex=undefined;
+var dragStartTourId=undefined;
 //Global variable section end
 
 //Utils Section Start
@@ -267,8 +270,8 @@ var createAndAppendStepEditElements=async function(stepContainer,tourId,stepId){
 
 var updateAccordionList=function(currentStorageData=[]){
   if(currentStorageData.length){updateAllData(currentStorageData);}
+  allStepElements={}; //To store the elements for using it in the drag and drop workflow later
   console.log("CurrentStorageData in popup.js updateAccordionList method below: ");
-  console.log(currentStorageData.length);
   console.log(currentStorageData);
   var currentAccordionUlElement=document.querySelector('.AccordionList ul');
   currentAccordionUlElement.innerHTML='';
@@ -277,6 +280,7 @@ var updateAccordionList=function(currentStorageData=[]){
 
   for(var i=0;i<currentStorageData.length;i++){
       var tourId=currentStorageData[i].tourId;
+      allStepElements[tourId]=[];
       var liElement=document.createElement('li');
       liElement.setAttribute('tourId',tourId);
       var tourElementCloned = tourElementTemplate.content.firstElementChild.cloneNode(true);
@@ -290,6 +294,7 @@ var updateAccordionList=function(currentStorageData=[]){
         var currStepId=steps[j]?.stepId;
         var ulElement=document.createElement('ul');
         ulElement.setAttribute('class','inner');
+        ulElement.setAttribute('data-index',j);
         var stepElementTemplate= document.getElementById('StepElementTemplate');
         var stepElementCloned=stepElementTemplate.content.firstElementChild.cloneNode(true);
         stepElementCloned.querySelector('.StepText').innerHTML=steps[j].stepName;
@@ -299,6 +304,7 @@ var updateAccordionList=function(currentStorageData=[]){
         stepElementCloned.querySelector('.buttonGroupInner').setAttribute('stepId',currStepId);
         stepElementCloned.querySelector('.buttonGroupInner').setAttribute('parentTourId',tourId);
         ulElement.appendChild(stepElementCloned);
+        allStepElements[tourId].push(ulElement);
         liElement.appendChild(ulElement);
       }
       currentAccordionUlElement.appendChild(liElement);
@@ -321,6 +327,49 @@ var updateAccordionList=function(currentStorageData=[]){
   var hiddenInputFileElement=document.querySelector(HiddenInputElementSelector);
   if(loaderDiv.style.display==='flex'){loaderDiv.style.display='none';}
   // hiddenInputFileElement.value='';
+};
+
+var addStepElementDragEventListeners=function(){
+  
+  var swapSteps=function(tourId,startIndex,endIndex){
+    const startStep=allStepElements[tourId][startIndex].querySelector('.draggable');
+    const endStep=allStepElements[tourId][endIndex].querySelector('.draggable');
+    allStepElements[tourId][startIndex].appendChild(endStep);
+    allStepElements[tourId][endIndex].appendChild(startStep);
+  };
+
+  var dragStart=function(){
+    dragStartIndex=this.closest('ul').getAttribute('data-index');
+    dragStartTourId=this.getAttribute('parentTourId');
+    console.log("DragStart Index",dragStartIndex);
+    // console.log("Event:",'dragstart');
+  };
+  var dragOver=function(e){
+    e.preventDefault();
+    // console.log("Event:",'dragover');
+  };
+  var dragDrop=function(){
+    const dragEndIndex=this.getAttribute('data-index');
+    var dragEndTourId=this.parentElement.getAttribute('tourId');
+    if(dragStartTourId===dragEndTourId){
+      swapSteps(dragStartTourId,dragStartIndex,dragEndIndex);
+    }
+    // console.log("Event:",'drop');
+  };
+  var dragEnter=function(){
+    // console.log("Event:",'dragenter');
+  };
+  var dragLeave=function(){
+    // console.log("Event:",'dragleave');
+  };
+
+  var ulElements=$('ul.inner');
+  var draggableElements=$('.draggable');
+  draggableElements.off('dragstart').on('dragstart',dragStart);
+  ulElements.off('dragover').on('dragover',dragOver);
+  ulElements.off('drop').on('drop',dragDrop);
+  ulElements.off('dragenter').on('dragenter',dragEnter);
+  ulElements.off('dragleave').on('dragleave',dragLeave);
 };
 
 var initiateAllEventListeners=async function(){
@@ -642,6 +691,9 @@ var initiateAllEventListeners=async function(){
     });
     //DeleteButton EventListener End
 
+    //Step Element Draggable Event Listeners Start
+      addStepElementDragEventListeners();
+    //Step Element Draggable Event Listeners End
   //Step Element Events End
 }
 
@@ -711,6 +763,8 @@ var generateAndAppendTemplate = function () {
   var stepElementTemplate = document.createElement('template');
   stepElementTemplate.setAttribute('id', "StepElementTemplate");
   var listElement = document.createElement('li');
+  listElement.setAttribute('draggable',true);
+  listElement.classList.add('draggable');
   var stepElement = document.createElement('div');
   stepElement.setAttribute('class', 'StepElement');
   var stepTextElement = document.createElement('div');
