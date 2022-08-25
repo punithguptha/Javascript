@@ -3,7 +3,7 @@ html {
 }
 
 body {
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
   min-width: 400px;
   min-height: 200px;
   color: #333333;
@@ -18,7 +18,8 @@ body {
   padding-left: 25px;
 } */
 
-.CreateTour , .UploadTour {
+.CreateTour,
+.UploadTour {
   border: 0;
   background-color: transparent;
   border: 1px solid #000000;
@@ -37,7 +38,7 @@ body {
   text-decoration: none;
 }
 
-.UploadTour:hover{
+.UploadTour:hover {
   background-color: #000000;
   color: #ffffff;
   text-decoration: none;
@@ -58,212 +59,212 @@ body {
     font-weight: 300;
   } */
 
-  .TourForm{
-    display: none;
-    flex-direction: column;
-    padding: 10px;
-  }
+.TourForm {
+  display: none;
+  flex-direction: column;
+  padding: 10px;
+}
 
-  .TourForm input{
-    margin-bottom: 10px;
-    height: 25px;
-  }
+.TourForm input {
+  margin-bottom: 10px;
+  height: 25px;
+}
 
-  .TourForm textarea{
-    margin-bottom: 10px;
-    height: 50px;
-  }
+.TourForm textarea {
+  margin-bottom: 10px;
+  height: 50px;
+}
 
-  .buttonGroupForm{
-    display: inline-flex;
-    justify-content: center;
-  }
+.buttonGroupForm {
+  display: inline-flex;
+  justify-content: center;
+}
 
-  .buttonGroupForm button{
-    margin-left:10px;
-  }
+.buttonGroupForm button {
+  margin-left: 10px;
+}
 
-  .TourElement{
-    display: inline-flex;
-    width: 100%;
-    background-color: white;
-  }
+.TourElement {
+  display: inline-flex;
+  width: 100%;
+  background-color: white;
+}
 
-  .tourEdit{
-    /*display to be made flex during runtime */
-    display: none;
-    flex-flow: column;
-    padding: 10px;
-    justify-content: center;
-    align-self: center;
-    align-items: center;
-    height: 100%;
-    border: 2px solid black;
-  }
+.tourEdit {
+  /*display to be made flex during runtime */
+  display: none;
+  flex-flow: column;
+  padding: 10px;
+  justify-content: center;
+  align-self: center;
+  align-items: center;
+  height: 100%;
+  border: 2px solid black;
+}
 
-  .tourEdit label{
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    padding:10px;
-    font-weight: bold;
-  }
-  
-  .tourEdit .tourEditButtonsContainer{
-    padding-top:10px;
-  }
+.tourEdit label {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  padding: 10px;
+  font-weight: bold;
+}
 
-  .tourEdit .tourEditButtonsContainer button{
-    margin-left:10px;
-  }
+.tourEdit .tourEditButtonsContainer {
+  padding-top: 10px;
+}
 
-  #tourStepAnchor {
-    height: 100%;
-    width: 100%;
-    padding: .75em;
-    border-radius: 0.15em;
-    transition: background .3s ease;
-    font-size: medium;
-  }
+.tourEdit .tourEditButtonsContainer button {
+  margin-left: 10px;
+}
 
-  .buttonGroupOuter{
-    align-self: center;
-    right: 0;
-    position: absolute;
-    padding-right: 10px;
-    display: inline-flex;
-  }
+#tourStepAnchor {
+  height: 100%;
+  width: 100%;
+  padding: 0.75em;
+  border-radius: 0.15em;
+  transition: background 0.3s ease;
+  font-size: medium;
+}
 
-  .buttonGroupOuter button{
-    margin-left:3px;
-  }
+.buttonGroupOuter {
+  align-self: center;
+  right: 0;
+  position: absolute;
+  padding-right: 10px;
+  display: inline-flex;
+}
 
-  .buttonGroupOuter button img{
-    display: block;
-  }
+.buttonGroupOuter button {
+  margin-left: 3px;
+}
 
-  .buttonGroupOuter a{
-    text-decoration: none;
-  }
+.buttonGroupOuter button img {
+  display: block;
+}
 
-  .StepElement{
-    display: inline-flex;
-    width:100%;
-    justify-content: center;
-  }
+.buttonGroupOuter a {
+  text-decoration: none;
+}
 
-  .stepEdit{
-    display: none;
-    flex-flow: column;
-    align-items: center;
-    border: 2px lightseagreen solid;
-    padding: 10px;
-    height: 100%;
-  }
+.StepElement {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+}
 
-  .stepEdit label{
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    font-weight: normal;
-    color: lightseagreen;
-    padding-bottom: 10px;
-  }
+.stepEdit {
+  display: none;
+  flex-flow: column;
+  align-items: center;
+  border: 2px lightseagreen solid;
+  padding: 10px;
+  height: 100%;
+}
 
-  .stepEdit .stepDescriptionLabel textarea{
-    min-height: 80px;
-  }
+.stepEdit label {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  font-weight: normal;
+  color: lightseagreen;
+  padding-bottom: 10px;
+}
 
-  .stepEdit .stepSelectorLabel textarea{
-    min-height: 50px;
-  }
+.stepEdit .stepDescriptionLabel textarea {
+  min-height: 80px;
+}
 
-  .stepEdit .stepEditButtonsContainer button{
-    margin-left: 10px;
-  }
+.stepEdit .stepSelectorLabel textarea {
+  min-height: 50px;
+}
 
-  .StepText{
-    padding: 5px;
-    align-self: center;
-  }
+.stepEdit .stepEditButtonsContainer button {
+  margin-left: 10px;
+}
 
-  .buttonGroupInner{
-    padding: 5px;
-    margin-left:auto;
-  }
+.StepText {
+  padding: 5px;
+  align-self: center;
+}
 
-  .buttonGroupInner button{
-    font-size: smaller;
-    margin-left:3px;
-  }
-  
-  .buttonGroupInner button img{
-    display: block;
-  }
+.buttonGroupInner {
+  padding: 5px;
+  margin-left: auto;
+}
 
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
+.buttonGroupInner button {
+  font-size: smaller;
+  margin-left: 3px;
+}
 
-  a.toggle:hover{
-        background-color: black !important;
-        color: white !important;
-  }
+.buttonGroupInner button img {
+  display: block;
+}
 
-  .StepElement:hover{
-    background-color: lightseagreen !important;
-    color: white !important;
-  }
+a {
+  text-decoration: none;
+  color: inherit;
+}
 
-  i {
-    float: right;
-    padding-left: 3px;
-  }
-  .iconleft {
-    float: left;
-    padding-right: 3px;
-    padding-left: 0px;
-  }
-  p {
-    font-size: 1.1em;
-    margin: 1em 0;
-  }
-  .description {
-    margin: 1em auto 2.25em;
-  }
-  /* body {
+a.toggle:hover {
+  background-color: black !important;
+  color: white !important;
+}
+
+.StepElement:hover {
+  background-color: lightseagreen !important;
+  color: white !important;
+}
+
+i {
+  float: right;
+  padding-left: 3px;
+}
+.iconleft {
+  float: left;
+  padding-right: 3px;
+  padding-left: 0px;
+}
+p {
+  font-size: 1.1em;
+  margin: 1em 0;
+}
+.description {
+  margin: 1em auto 2.25em;
+}
+/* body {
     width: 40%;
     min-width: 300px;
     max-width: 400px;
     margin: 1.5em auto;
     color: #333;
   } */
-  h1 {
-    font-family: 'Pacifico', cursive;
-    font-weight: 400;
-    font-size: 2.5em;
-  }
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-  ul .inner {
-    padding: 0 10px 0 10px;
-    overflow: hidden;
-    display: none;
-  }
-  ul li {
-    margin: .5em 0;
-  }
-  
-  /* ul li a.toggle:hover {
+h1 {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-size: 2.5em;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+ul .inner {
+  padding: 0 10px 0 10px;
+  overflow: hidden;
+  display: none;
+}
+ul li {
+  margin: 0.5em 0;
+}
+
+/* ul li a.toggle:hover {
     background: rgba(193, 193, 193, 0.9);
   } */
 /* Accordion CSS end */
 
 /*loader css start*/
-.LoaderDiv{
+.LoaderDiv {
   display: none;
   /* display: flex; */
   height: 100%;
@@ -276,7 +277,7 @@ body {
   backdrop-filter: blur(100px);
 }
 
-.LoaderDivText{
+.LoaderDivText {
   text-align: center;
   font-size: x-large;
   padding-bottom: 50px;
@@ -295,12 +296,20 @@ body {
 
 /* Safari */
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 /*loader css end*/

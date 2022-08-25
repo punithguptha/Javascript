@@ -1,25 +1,33 @@
 // https://github.com/dequelabs/axe-core
 
-function isUncommonClassName (className) {
+function isUncommonClassName(className) {
   return ![
-    'focus', 'hover',
-    'hidden', 'visible',
-    'dirty', 'touched', 'valid', 'disable',
-    'enable', 'active', 'col-'
-  ].find(str => className.includes(str));
+    "focus",
+    "hover",
+    "hidden",
+    "visible",
+    "dirty",
+    "touched",
+    "valid",
+    "disable",
+    "enable",
+    "active",
+    "col-",
+  ].find((str) => className.includes(str));
 }
 
-function getDistinctClassList (elm) {
+function getDistinctClassList(elm) {
   if (!elm.classList || elm.classList.length === 0) {
     return [];
   }
 
-  const siblings = elm.parentNode && Array.from(elm.parentNode.children || '') || [];
+  const siblings =
+    (elm.parentNode && Array.from(elm.parentNode.children || "")) || [];
   return siblings.reduce((classList, childElm) => {
     if (elm === childElm) {
       return classList;
     } else {
-      return classList.filter(classItem => {
+      return classList.filter((classItem) => {
         return !childElm.classList.contains(classItem);
       });
     }
@@ -27,33 +35,40 @@ function getDistinctClassList (elm) {
 }
 
 const commonNodes = [
-  'div', 'span', 'p',
-  'b', 'i', 'u', 'strong', 'em',
-  'h2', 'h3'
+  "div",
+  "span",
+  "p",
+  "b",
+  "i",
+  "u",
+  "strong",
+  "em",
+  "h2",
+  "h3",
 ];
 
-function getNthChildString (elm, selector) {
-  const siblings = elm.parentNode && Array.from(elm.parentNode.children || '') || [];
-  const hasMatchingSiblings = siblings.find(sibling => (
-    sibling !== elm &&
-    matchesSelector(sibling, selector)
-  ));
+function getNthChildString(elm, selector) {
+  const siblings =
+    (elm.parentNode && Array.from(elm.parentNode.children || "")) || [];
+  const hasMatchingSiblings = siblings.find(
+    (sibling) => sibling !== elm && matchesSelector(sibling, selector)
+  );
   if (hasMatchingSiblings) {
     const nthChild = 1 + siblings.indexOf(elm);
-    return ':nth-child(' + nthChild + ')';
+    return ":nth-child(" + nthChild + ")";
   } else {
-    return '';
+    return "";
   }
 }
 
 const createSelector = {
   // Get ID properties
-  getElmId (elm) {
-    if (!elm.getAttribute('id')) {
+  getElmId(elm) {
+    if (!elm.getAttribute("id")) {
       return;
     }
     let doc = (elm.getRootNode && elm.getRootNode()) || document;
-    const id = '#' + escapeSelector(elm.getAttribute('id') || '');
+    const id = "#" + escapeSelector(elm.getAttribute("id") || "");
     if (
       // Don't include youtube's uid values, they change  on reload
       !id.match(/player_uid_/) &&
@@ -64,62 +79,62 @@ const createSelector = {
     }
   },
   // Get custom element name
-  getCustomElm (elm, { isCustomElm, nodeName }) {
+  getCustomElm(elm, { isCustomElm, nodeName }) {
     if (isCustomElm) {
       return nodeName;
     }
   },
 
   // Get ARIA role
-  getElmRoleProp (elm) {
-    if (elm.hasAttribute('role')) {
-      return '[role="' + escapeSelector(elm.getAttribute('role')) +'"]';
+  getElmRoleProp(elm) {
+    if (elm.hasAttribute("role")) {
+      return '[role="' + escapeSelector(elm.getAttribute("role")) + '"]';
     }
   },
   // Get uncommon node names
-  getUncommonElm (elm, { isCommonElm, isCustomElm, nodeName })  {
+  getUncommonElm(elm, { isCommonElm, isCustomElm, nodeName }) {
     if (!isCommonElm && !isCustomElm) {
       nodeName = escapeSelector(nodeName);
       // Add [type] if nodeName is an input element
-      if (nodeName === 'input' && elm.hasAttribute('type')) {
+      if (nodeName === "input" && elm.hasAttribute("type")) {
         nodeName += '[type="' + elm.type + '"]';
       }
       return nodeName;
     }
   },
   // Has a name property, but no ID (Think input fields)
-  getElmNameProp (elm) {
-    if (!elm.hasAttribute('id') && elm.name) {
+  getElmNameProp(elm) {
+    if (!elm.hasAttribute("id") && elm.name) {
       return '[name="' + escapeSelector(elm.name) + '"]';
     }
   },
   // Get any distinct classes (as long as there aren't more then 3 of them)
-  getDistinctClass (elm, { distinctClassList }) {
+  getDistinctClass(elm, { distinctClassList }) {
     if (distinctClassList.length > 0 && distinctClassList.length < 3) {
-      return '.' + distinctClassList.map(escapeSelector).join('.');
+      return "." + distinctClassList.map(escapeSelector).join(".");
     }
   },
   // Get a selector that uses src/href props
-  getFileRefProp (elm) {
+  getFileRefProp(elm) {
     let attr;
-    if (elm.hasAttribute('href')) {
-      attr = 'href';
-    } else if (elm.hasAttribute('src')) {
-      attr = 'src';
+    if (elm.hasAttribute("href")) {
+      attr = "href";
+    } else if (elm.hasAttribute("src")) {
+      attr = "src";
     } else {
       return;
     }
     const friendlyUriEnd = getFriendlyUriEnd(elm.getAttribute(attr));
     if (friendlyUriEnd) {
-      return '[' + attr + '$="' + encodeURI(friendlyUriEnd) + '"]';
+      return "[" + attr + '$="' + encodeURI(friendlyUriEnd) + '"]';
     }
   },
   // Get common node names
-  getCommonName (elm, { nodeName, isCommonElm }) {
+  getCommonName(elm, { nodeName, isCommonElm }) {
     if (isCommonElm) {
       return nodeName;
     }
-  }
+  },
 };
 
 /**
@@ -129,16 +144,16 @@ const createSelector = {
  * we attempt to find those features that a dev is most likely to
  * recognize the element by (IDs, aria roles, custom element names, etc.)
  */
-function getElmFeatures (elm, featureCount) {
+function getElmFeatures(elm, featureCount) {
   const nodeName = elm.nodeName.toLowerCase();
   const classList = Array.from(elm.classList) || [];
   // Collect some props we need to build the selector
   const props = {
     nodeName,
     classList,
-    isCustomElm: nodeName.includes('-'),
+    isCustomElm: nodeName.includes("-"),
     isCommonElm: commonNodes.includes(nodeName),
-    distinctClassList: getDistinctClassList(elm)
+    distinctClassList: getDistinctClassList(elm),
   };
 
   return [
@@ -149,7 +164,7 @@ function getElmFeatures (elm, featureCount) {
     createSelector.getElmNameProp,
     createSelector.getDistinctClass,
     createSelector.getFileRefProp,
-    createSelector.getCommonName
+    createSelector.getCommonName,
   ].reduce((features, func) => {
     // As long as we haven't met our count, keep looking for features
     if (features.length === featureCount) {
@@ -168,7 +183,7 @@ function getElmFeatures (elm, featureCount) {
   }, []);
 }
 
-function generateSelector (elm, options, doc) {
+function generateSelector(elm, options, doc) {
   //jshint maxstatements: 19
   let selector, addParent;
   let { isUnique = false } = options;
@@ -177,38 +192,45 @@ function generateSelector (elm, options, doc) {
     featureCount = 2,
     minDepth = 1,
     toRoot = false,
-    childSelectors = []
+    childSelectors = [],
   } = options;
 
   if (idSelector) {
     selector = idSelector;
     isUnique = true;
-
   } else {
-    selector = getElmFeatures(elm, featureCount).join('');
+    selector = getElmFeatures(elm, featureCount).join("");
     selector += getNthChildString(elm, selector);
     isUnique = options.isUnique || doc.querySelectorAll(selector).length === 1;
 
     // For the odd case that document doesn't have a unique selector
     if (!isUnique && elm === document.documentElement) {
-      // todo: figure out what to do for shadow DOM
-      selector += ':root';
+      // TODO: figure out what to do for shadow DOM
+      selector += ":root";
     }
-    addParent = (minDepth !== 0 || !isUnique);
+    addParent = minDepth !== 0 || !isUnique;
   }
 
   const selectorParts = [selector, ...childSelectors];
 
-  if (elm.parentElement && elm.parentElement.nodeType !== 11 &&
-    (toRoot || addParent)) {
-    return generateSelector(elm.parentNode, {
-      toRoot, isUnique,
-      childSelectors: selectorParts,
-      featureCount: 1,
-      minDepth: minDepth -1
-    }, doc);
+  if (
+    elm.parentElement &&
+    elm.parentElement.nodeType !== 11 &&
+    (toRoot || addParent)
+  ) {
+    return generateSelector(
+      elm.parentNode,
+      {
+        toRoot,
+        isUnique,
+        childSelectors: selectorParts,
+        featureCount: 1,
+        minDepth: minDepth - 1,
+      },
+      doc
+    );
   } else {
-    return selectorParts.join(' > ');
+    return selectorParts.join(" > ");
   }
 }
 
@@ -218,19 +240,20 @@ function generateSelector (elm, options, doc) {
  * @param {Object} optional options
  * @return {String | Array[String]}      Unique CSS selector for the node
  */
-var getSelector = function createUniqueSelector (elm, options = {}) {
+var getSelector = function createUniqueSelector(elm, options = {}) {
   if (!elm) {
-    return '';
+    return "";
   }
   let doc = (elm.getRootNode && elm.getRootNode()) || document;
-  if (doc.nodeType === 11) { // DOCUMENT_FRAGMENT
+  if (doc.nodeType === 11) {
+    // DOCUMENT_FRAGMENT
     let stack = [];
     while (doc.nodeType === 11) {
-      stack.push({elm: elm, doc: doc});
+      stack.push({ elm: elm, doc: doc });
       elm = doc.host;
       doc = elm.getRootNode();
     }
-    stack.push({elm: elm, doc: doc});
+    stack.push({ elm: elm, doc: doc });
     return stack.reverse().map((comp) => {
       return generateSelector(comp.elm, options, comp.doc);
     });
@@ -249,10 +272,16 @@ var matchesSelector = (function () {
   var method;
 
   function getMethod(win) {
-
-    var index, candidate,
+    var index,
+      candidate,
       elProto = win.Element.prototype,
-      candidates = ['matches', 'matchesSelector', 'mozMatchesSelector', 'webkitMatchesSelector', 'msMatchesSelector'],
+      candidates = [
+        "matches",
+        "matchesSelector",
+        "mozMatchesSelector",
+        "webkitMatchesSelector",
+        "msMatchesSelector",
+      ],
       length = candidates.length;
 
     for (index = 0; index < length; index++) {
@@ -270,7 +299,7 @@ var matchesSelector = (function () {
 
     return node[method](selector);
   };
-}());
+})();
 
 /**
  * Escapes a property value of a CSS selector
@@ -280,13 +309,13 @@ var matchesSelector = (function () {
  * @return {String}        The escaped selector
  */
 var escapeSelector = function (value) {
-  'use strict';
+  "use strict";
   /*jshint bitwise: true, eqeqeq: false, maxcomplexity: 14, maxstatements: 23, onevar: false, -W041: false */
   var string = String(value);
   var length = string.length;
   var index = -1;
   var codeUnit;
-  var result = '';
+  var result = "";
   var firstCodeUnit = string.charCodeAt(0);
   while (++index < length) {
     codeUnit = string.charCodeAt(index);
@@ -296,31 +325,34 @@ var escapeSelector = function (value) {
     // If the character is NULL (U+0000), then throw an
     // `InvalidCharacterError` exception and terminate these steps.
     if (codeUnit == 0x0000) {
-      throw new Error('INVALID_CHARACTER_ERR');
+      throw new Error("INVALID_CHARACTER_ERR");
     }
 
     if (
       // If the character is in the range [\1-\1F] (U+0001 to U+001F) or
       // [\7F-\9F] (U+007F to U+009F), […]
-      (codeUnit >= 0x0001 && codeUnit <= 0x001F) ||
-      (codeUnit >= 0x007F && codeUnit <= 0x009F) ||
+      (codeUnit >= 0x0001 && codeUnit <= 0x001f) ||
+      (codeUnit >= 0x007f && codeUnit <= 0x009f) ||
       // If the character is the first character and is in the range [0-9]
       // (U+0030 to U+0039), […]
       (index == 0 && codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
       // If the character is the second character and is in the range [0-9]
       // (U+0030 to U+0039) and the first character is a `-` (U+002D), […]
-      (index == 1 && codeUnit >= 0x0030 && codeUnit <= 0x0039 && firstCodeUnit == 0x002D)
+      (index == 1 &&
+        codeUnit >= 0x0030 &&
+        codeUnit <= 0x0039 &&
+        firstCodeUnit == 0x002d)
     ) {
       // http://dev.w3.org/csswg/cssom/#escape-a-character-as-code-point
-      result += '\\' + codeUnit.toString(16) + ' ';
+      result += "\\" + codeUnit.toString(16) + " ";
       continue;
     }
 
     // If the character is the second character and is `-` (U+002D) and the
     // first character is `-` as well, […]
-    if (index == 1 && codeUnit == 0x002D && firstCodeUnit == 0x002D) {
+    if (index == 1 && codeUnit == 0x002d && firstCodeUnit == 0x002d) {
       // http://dev.w3.org/csswg/cssom/#escape-a-character
-      result += '\\' + string.charAt(index);
+      result += "\\" + string.charAt(index);
       continue;
     }
 
@@ -330,11 +362,11 @@ var escapeSelector = function (value) {
     // U+005A), or [a-z] (U+0061 to U+007A), […]
     if (
       codeUnit >= 0x0080 ||
-      codeUnit == 0x002D ||
-      codeUnit == 0x005F ||
-      codeUnit >= 0x0030 && codeUnit <= 0x0039 ||
-      codeUnit >= 0x0041 && codeUnit <= 0x005A ||
-      codeUnit >= 0x0061 && codeUnit <= 0x007A
+      codeUnit == 0x002d ||
+      codeUnit == 0x005f ||
+      (codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
+      (codeUnit >= 0x0041 && codeUnit <= 0x005a) ||
+      (codeUnit >= 0x0061 && codeUnit <= 0x007a)
     ) {
       // the character itself
       result += string.charAt(index);
@@ -343,8 +375,7 @@ var escapeSelector = function (value) {
 
     // Otherwise, the escaped character.
     // http://dev.w3.org/csswg/cssom/#escape-a-character
-    result += '\\' + string.charAt(index);
-
+    result += "\\" + string.charAt(index);
   }
   return result;
 };
@@ -352,10 +383,9 @@ var escapeSelector = function (value) {
 /**
  * Check if a string contains mostly numbers
  */
-function isMostlyNumbers (str = '') {
+function isMostlyNumbers(str = "") {
   return (
-    str.length !== 0 &&
-    (str.match(/[0-9]/g) || '').length >= str.length / 2
+    str.length !== 0 && (str.match(/[0-9]/g) || "").length >= str.length / 2
   );
 }
 
@@ -365,7 +395,7 @@ function isMostlyNumbers (str = '') {
  * @param Number  index at which to split
  * @return Array
  */
-function splitString (str, splitIndex) {
+function splitString(str, splitIndex) {
   return [str.substring(0, splitIndex), str.substring(splitIndex)];
 }
 
@@ -381,45 +411,51 @@ function splitString (str, splitIndex) {
  *   .query     Query string, e.g. '?user=admin&password=pass'
  *   .hash      Hash / internal reference, e.g. '#footer'
  */
-function uriParser (url) {
+function uriParser(url) {
   // jshint maxstatements:19
   let original = url;
-  let protocol = '', domain = '', port = '', path = '', query = '', hash = '';
-  if (url.includes('#')) {
-    [url, hash] = splitString(url, url.indexOf('#'));
+  let protocol = "",
+    domain = "",
+    port = "",
+    path = "",
+    query = "",
+    hash = "";
+  if (url.includes("#")) {
+    [url, hash] = splitString(url, url.indexOf("#"));
   }
 
-  if (url.includes('?')) {
-    [url, query] = splitString(url, url.indexOf('?'));
+  if (url.includes("?")) {
+    [url, query] = splitString(url, url.indexOf("?"));
   }
 
-  if (url.includes('://')) {
-    [protocol, url] = url.split('://');
-    [domain, url] = splitString(url, url.indexOf('/'));
-  } else if (url.substr(0,2) === '//') {
+  if (url.includes("://")) {
+    [protocol, url] = url.split("://");
+    [domain, url] = splitString(url, url.indexOf("/"));
+  } else if (url.substr(0, 2) === "//") {
     url = url.substr(2);
-    [domain, url] = splitString(url, url.indexOf('/'));
+    [domain, url] = splitString(url, url.indexOf("/"));
   }
 
-  if (domain.substr(0,4) === 'www.') {
+  if (domain.substr(0, 4) === "www.") {
     domain = domain.substr(4);
   }
 
-  if (domain && domain.includes(':')) {
-    [domain, port] = splitString(domain, domain.indexOf(':'));
+  if (domain && domain.includes(":")) {
+    [domain, port] = splitString(domain, domain.indexOf(":"));
   }
 
   path = url; // Whatever is left, must be the path
   return { original, protocol, domain, port, path, query, hash };
 }
 
-var getFriendlyUriEnd = function getFriendlyUriEnd (uri = '', options = {}) {
+var getFriendlyUriEnd = function getFriendlyUriEnd(uri = "", options = {}) {
   // jshint maxstatements: 16, maxcomplexity: 13, scripturl: true
-  if (// Skip certain URIs:
+  if (
+    // Skip certain URIs:
     uri.length <= 1 || // very short
-    uri.substr(0, 5) === 'data:' || // data URIs are unreadable
-    uri.substr(0, 11) === 'javascript:' || // JS isn't a URL
-    uri.includes('?') // query strings aren't very readable either
+    uri.substr(0, 5) === "data:" || // data URIs are unreadable
+    uri.substr(0, 11) === "javascript:" || // JS isn't a URL
+    uri.includes("?") // query strings aren't very readable either
   ) {
     return;
   }
@@ -428,32 +464,40 @@ var getFriendlyUriEnd = function getFriendlyUriEnd (uri = '', options = {}) {
   const { path, domain, hash } = uriParser(uri);
   // Split the path at the last / that has text after it
   const pathEnd = path.substr(
-    path.substr(0, path.length-2).lastIndexOf('/') + 1
+    path.substr(0, path.length - 2).lastIndexOf("/") + 1
   );
 
   if (hash) {
     if (pathEnd && (pathEnd + hash).length <= maxLength) {
       return pathEnd + hash;
-    } else if (pathEnd.length < 2 && hash.length > 2 && hash.length <= maxLength) {
+    } else if (
+      pathEnd.length < 2 &&
+      hash.length > 2 &&
+      hash.length <= maxLength
+    ) {
       return hash;
     } else {
       return;
     }
-  } else if (domain && domain.length < maxLength && path.length <= 1) {// '' or '/'
+  } else if (domain && domain.length < maxLength && path.length <= 1) {
+    // '' or '/'
     return domain + path;
   }
 
   // See if the domain should be returned
-  if (path === '/' + pathEnd &&
-    domain && currentDomain &&
+  if (
+    path === "/" + pathEnd &&
+    domain &&
+    currentDomain &&
     domain !== currentDomain &&
     (domain + path).length <= maxLength
   ) {
     return domain + path;
   }
 
-  const lastDotIndex = pathEnd.lastIndexOf('.');
-  if (// Exclude very short or very long string
+  const lastDotIndex = pathEnd.lastIndexOf(".");
+  if (
+    // Exclude very short or very long string
     (lastDotIndex === -1 || lastDotIndex > 1) &&
     (lastDotIndex !== -1 || pathEnd.length > 2) &&
     pathEnd.length <= maxLength &&
