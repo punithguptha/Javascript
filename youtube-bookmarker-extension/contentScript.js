@@ -26,7 +26,7 @@
         }
     });
 
-    /*ToDo:
+    /*TODO:
      To add a condition that once the function gets called it doesnot get called again on the same link
     */
     const newVideoLoaded= async ()=>{
@@ -55,7 +55,7 @@
         currentVideoBookmarks=await fetchBookmarks();
         console.log("New Bookmark added: "+JSON.stringify(newBookMark));
         let combinedArray=[...currentVideoBookmarks,newBookMark];
-        /*ToDo: check and remove the duplicates */
+        /*TODO: check and remove the duplicates */
         console.log("Combined Array's length "+combinedArray.length);
         const checkFn=()=>{};
         let combinedArrayWithoutDuplicates=[];
