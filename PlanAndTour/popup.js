@@ -108,6 +108,10 @@ var populateEditTourFields = function (result) {
     tourEditElement.style.display = "none";
     tourContainer.querySelector("a").style.color = "black";
     tourContainer.querySelector("a").style.backgroundColor = "white";
+    var stepEditButtonsContainer=tourContainer.querySelector('.stepOrderButtonsContainer');
+    if(stepEditButtonsContainer){
+      updateAccordionList(allDataForHostName);
+    }
   });
   updateButton.addEventListener("click", async function (e) {
     var loaderDiv = document.querySelector(LoaderDivElementSelector);
@@ -223,8 +227,6 @@ var populateEditStepFields = function (result) {
 //Utils Section End
 
 var toggleElementFunction = function () {
-  //TODO: To put the step elements in correct order after every toggle
-  //TODO: To hide the steporderedit button container on toggle/hide
   removeExistingEventListeners(ToggleElementSelector);
   var toggleElements = document.querySelectorAll(ToggleElementSelector);
   toggleElements.forEach(function (toggleElement) {
@@ -234,6 +236,11 @@ var toggleElementFunction = function () {
       var tourEditElement = outerTourElement.querySelector(".tourEdit");
       if (tourEditElement) {
         tourEditElement.style.display = "none";
+      }
+      var stepOrderButtonsContainer=outerTourElement.querySelector('.stepOrderButtonsContainer');
+      if(stepOrderButtonsContainer&& stepOrderButtonsContainer.style.display==='flex'){
+        stepOrderButtonsContainer.style.display==='none';
+        updateAccordionList(allDataForHostName);
       }
       var innerElementList = outerTourElement.querySelectorAll(".inner");
       if (innerElementList.length) {
@@ -629,8 +636,6 @@ var initiateAllEventListeners = async function () {
   var tourEditButtons = document.querySelectorAll(TourEditButtonSelector);
   tourEditButtons.forEach(function (tourEditButton) {
     tourEditButton.addEventListener("click", async function (e) {
-      //TODO: On Tour Edit action hide the stepeditbuttons container
-      //TODO: Also reorder the step elements to correct state
       var parentElement = e.target.parentElement;
       if (e.target.nodeName === "IMG") {
         parentElement = parentElement.parentElement;
@@ -638,6 +643,12 @@ var initiateAllEventListeners = async function () {
       var currentTourId = parentElement.getAttribute("tourId");
       var tourElement = parentElement.parentElement;
       var tourContainer = tourElement.parentElement;
+      var stepEditButtonsContainer=tourContainer.querySelector('.stepOrderButtonsContainer');
+      if(stepEditButtonsContainer && stepEditButtonsContainer.style.display==='flex'){
+        // updateAccordionList(allDataForHostName);
+        stepEditButtonsContainer.style.display='none';
+        tourContainer.style.border='none';
+      }
       await createAndAppendTourEditElements(tourContainer, currentTourId);
       console.log("Inside Edit Tour Event Handler");
     });
