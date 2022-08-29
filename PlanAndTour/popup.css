@@ -18,6 +18,10 @@ body {
   padding-left: 25px;
 } */
 
+ul.over li.draggable{
+  background-color: blue;
+}
+
 .CreateTour,
 .UploadTour {
   border: 0;
@@ -145,6 +149,17 @@ body {
 
 .buttonGroupOuter a {
   text-decoration: none;
+}
+
+.stepOrderButtonsContainer{
+  display: none;
+  justify-content: center;
+  padding:5px;
+  border-top:2px solid black;
+}
+
+.stepOrderButtonsContainer button{
+  margin-left: 15px;
 }
 
 .StepElement {

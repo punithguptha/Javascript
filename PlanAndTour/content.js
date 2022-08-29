@@ -490,6 +490,30 @@
         [tourHostName]: JSON.stringify(allDataForHostName),
       });
       responseData = allDataForHostName;
+    }else if(type==="UPDATESTEPORDER" && tourHostName){
+      activeTourId=payload.tourId;
+      var passedTourId=payload.tourId;
+      var currentTourIndex=allDataForHostName.findIndex(function(tour){
+        if(tour.tourId===passedTourId){
+          return true;
+        }
+        return false;
+      });
+      var newTourObject=JSON.parse(JSON.stringify(allDataForHostName[currentTourIndex]));
+      newTourObject.tourObj.steps=[];
+      var passedStepsOrder=payload.tourObj.steps;
+      passedStepsOrder.forEach(function(passedStep){
+        var stepId=passedStep.stepId;
+        var fullStepData=allDataForHostName[currentTourIndex].tourObj.steps.filter(function(step){
+          return step.stepId===stepId;
+        })[0];
+        newTourObject.tourObj.steps.push(fullStepData);
+      });
+      allDataForHostName[currentTourIndex]=newTourObject;
+      chrome.storage.sync.set({
+        [tourHostName]: JSON.stringify(allDataForHostName),
+      });
+      responseData=allDataForHostName;
     }
     if (sendResponse) {
       sendResponse(responseData);

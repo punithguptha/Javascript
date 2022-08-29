@@ -15,6 +15,7 @@ const TourFormDescriptionSelector = ".TourForm textarea";
 const TourFormCancelSelector = ".TourForm .cancelButton";
 const TourFormSaveSelector = ".TourForm .saveButton";
 const TourEditButtonsSelector = ".tourEditButtonsContainer";
+const StepOrderButtonsContainerSelector='.stepOrderButtonsContainer';
 const StepEditButtonsSelector = ".stepEditButtonsContainer";
 const AccordionListSelector = ".AccordionList";
 const UploadTourButtonSelector = ".UploadTour";
@@ -222,6 +223,8 @@ var populateEditStepFields = function (result) {
 //Utils Section End
 
 var toggleElementFunction = function () {
+  //TODO: To put the step elements in correct order after every toggle
+  //TODO: To hide the steporderedit button container on toggle/hide
   removeExistingEventListeners(ToggleElementSelector);
   var toggleElements = document.querySelectorAll(ToggleElementSelector);
   toggleElements.forEach(function (toggleElement) {
@@ -408,6 +411,54 @@ var addStepElementDragEventListeners = function () {
   var dragStart = function () {
     dragStartIndex = this.closest("ul").getAttribute("data-index");
     dragStartTourId = this.getAttribute("parentTourId");
+    var tourListElement=this.closest("ul").parentElement;
+    tourListElement.style.border='2px solid black';
+    var stepOrderButtonsTemplate=document.getElementById('StepOrderButtonsTemplate');
+    var stepOrderButtonsDiv=tourListElement.querySelector('.stepOrderButtonsContainer');
+    if(!stepOrderButtonsDiv){
+      stepOrderButtonsDiv=stepOrderButtonsTemplate.content.firstElementChild.cloneNode(true);
+      tourListElement.appendChild(stepOrderButtonsDiv);
+    }
+
+    $(stepOrderButtonsDiv.querySelector('.update')).off('click').on('click',async function(){
+      //Update Button function
+      var loaderDiv = document.querySelector(LoaderDivElementSelector);
+      loaderDiv.style.display = "flex";
+      const activeTab = await getCurrentTab();
+      var urlObject=new URL(activeTab.url);
+      var tourHostName=urlObject.hostname;
+      var payload={
+        tourId:dragStartTourId,
+        tourObj:{
+          tourHostName:tourHostName,
+          "steps":[]
+        }
+      };
+      var steps=allStepElements[payload.tourId]
+      steps.forEach(function(step){
+        var stepId={stepId:step.firstChild.getAttribute('stepId')};
+        payload.tourObj.steps.push(stepId);
+      });
+      console.log("Payload for step order update: ",payload);
+      chrome.tabs.sendMessage(
+        activeTab.id,
+        {
+          type: "UPDATESTEPORDER",
+          payload: payload
+        },
+        updateAccordionList
+      );
+    });
+
+    $(stepOrderButtonsDiv.querySelector('.cancel')).off('click').on('click',function(){
+      //Cancel Button Function
+      var loaderDiv = document.querySelector(LoaderDivElementSelector);
+      loaderDiv.style.display = "flex";
+      //To rearrange the steps to original order
+      updateAccordionList(allDataForHostName);
+    });
+
+    stepOrderButtonsDiv.style.display='flex';
     console.log("DragStart Index", dragStartIndex);
     // console.log("Event:",'dragstart');
   };
@@ -421,13 +472,16 @@ var addStepElementDragEventListeners = function () {
     if (dragStartTourId === dragEndTourId) {
       swapSteps(dragStartTourId, dragStartIndex, dragEndIndex);
     }
+    // this.classList.remove('over');
     // console.log("Event:",'drop');
   };
   var dragEnter = function () {
     // console.log("Event:",'dragenter');
+    // this.classList.add('over');
   };
   var dragLeave = function () {
     // console.log("Event:",'dragleave');
+    // this.classList.remove('over');
   };
 
   var ulElements = $("ul.inner");
@@ -575,6 +629,8 @@ var initiateAllEventListeners = async function () {
   var tourEditButtons = document.querySelectorAll(TourEditButtonSelector);
   tourEditButtons.forEach(function (tourEditButton) {
     tourEditButton.addEventListener("click", async function (e) {
+      //TODO: On Tour Edit action hide the stepeditbuttons container
+      //TODO: Also reorder the step elements to correct state
       var parentElement = e.target.parentElement;
       if (e.target.nodeName === "IMG") {
         parentElement = parentElement.parentElement;
@@ -859,6 +915,23 @@ var generateAndAppendTemplate = function () {
   tourElementTemplate.content.appendChild(tourElementDiv);
   document.body.appendChild(tourElementTemplate);
 
+  //StepOrderButtons Container Template Addition Start
+  var stepOrderButtonsTemplate=document.createElement('template');
+  stepOrderButtonsTemplate.setAttribute("id","StepOrderButtonsTemplate");
+  var divElement=document.createElement('div');
+  divElement.classList.add('stepOrderButtonsContainer');
+  var updateButton=document.createElement('button');
+  updateButton.classList.add('update');
+  updateButton.textContent='Update';
+  var cancelButton=document.createElement('button');
+  cancelButton.classList.add('cancel');
+  cancelButton.textContent='Cancel';
+  divElement.appendChild(updateButton);
+  divElement.appendChild(cancelButton);
+  stepOrderButtonsTemplate.content.appendChild(divElement);
+  document.body.appendChild(stepOrderButtonsTemplate);
+  //StepOrderButtons Container Template Addition End
+ 
   //StepElement Template Addition
   var stepElementTemplate = document.createElement("template");
   stepElementTemplate.setAttribute("id", "StepElementTemplate");
